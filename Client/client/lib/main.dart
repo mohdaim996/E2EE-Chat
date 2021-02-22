@@ -1,6 +1,7 @@
+import 'package:client/chatRoom.dart';
+import 'package:client/socketTest.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,81 +10,38 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = 'WebSocket Demo';
     return MaterialApp(
+      routes: <String, WidgetBuilder>{
+        '/chatRoom': (BuildContext context) => new ChatRoom(),
+        '/socketTest': (BuildContext context) => new MyHomePage(
+              title: title,
+              channel: IOWebSocketChannel.connect(
+                "ws://58999b6f04c3.ngrok.io/",
+              )),
+
+      },
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(
-          title: title,
-          channel: IOWebSocketChannel.connect(
-            "ws://58999b6f04c3.ngrok.io/",
-          )),
+      home: Router()
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  final String title;
-  final WebSocketChannel channel;
-
-  MyHomePage({
-    Key key,
-    @required this.title,
-    @required this.channel,
-  }) : super(key: key);
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  TextEditingController _controller = TextEditingController();
-
+class Router extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Form(
-              child: TextFormField(
-                controller: _controller,
-                decoration: InputDecoration(labelText: 'Send a message'),
-              ),
-            ),
-            StreamBuilder(
-              stream: widget.channel.stream,
-              builder: (context, snapshot) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24.0),
-                  child: Text(snapshot.hasData ? '${snapshot.data}' : ''),
-                );
-              },
-            )
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _sendMessage,
-        tooltip: 'Send message',
-        child: Icon(Icons.send),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    return ListView(
+      children: [
+        RaisedButton(
+          onPressed: () => Navigator.pushNamed(context, '/chatRoom'),
+          child: Text('Chat Room'),
+          ),
+          RaisedButton(
+          onPressed: () => Navigator.pushNamed(context, '/socketTest'),
+          child: Text('Socket Test'),
+          )
+      ],
     );
   }
-
-  void _sendMessage() {
-    if (_controller.text.isNotEmpty) {
-      widget.channel.sink.add(_controller.text);
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.channel.sink.close();
-    super.dispose();
-  }
 }
+
