@@ -39,17 +39,27 @@ wsServer.on('request', function(request) {
     console.log((new Date()) + ' Connection accepted.');
     connection.sendUTF('Hi this is WebSocket server!');
     connection.on('message', function(message) {
-        console.log('Received Message:', message.utf8Data);
+        
       connection.sendUTF('Hi this is WebSocket server!');
       connection.send('hru');
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
-            connection.sendUTF(message.utf8Data);
+            const readline = require('readline').createInterface({
+                input: process.stdin,
+                output: process.stdout
+              });
+               
+              readline.question('Send: ', msg => {
+                console.log(`sent ${msg}!`);
+                connection.sendUTF(msg);
+                readline.close();
+              });
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
             connection.sendBytes(message.binaryData);
         }
+        
     });
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
