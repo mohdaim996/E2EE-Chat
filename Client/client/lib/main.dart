@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         '/socketTest': (BuildContext context) => new MyHomePage(
               title: title,
               channel: IOWebSocketChannel.connect(
-                "ws://58999b6f04c3.ngrok.io/",
+                "ws://a908ce74c99d.ngrok.io",
               )),
 
       },
