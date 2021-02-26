@@ -9,7 +9,7 @@ class ChatRoom extends StatefulWidget {
 
 class _ChatRoomState extends State<ChatRoom> {
   final WebSocketChannel channel = IOWebSocketChannel.connect(
-    "ws://58999b6f04c3.ngrok.io/",
+    "ws://4646ed7b6bbd.ngrok.io",
   );
   TextEditingController _controller = TextEditingController();
 
@@ -19,31 +19,25 @@ class _ChatRoomState extends State<ChatRoom> {
       appBar: new AppBar(
         title: new Text("Reciever Name"),
       ),
-      body: 
-      
-      Column(
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.end,
-        
         children: [
-          Expanded(
-            flex: 1,
-            child:Container(
-              color: Colors.blueGrey[100],
-             constraints: BoxConstraints.expand(),
-             
-              ) )
-          ,
-       
-            Row(
-            
+          Expanded(flex: 1, child: MsgBuilder()),
+          /* Expanded(
+              flex: 1,
+              child: Container(
+                color: Colors.blueGrey[100],
+                constraints: BoxConstraints.expand(),
+              )),*/
+          Row(
             children: [
               Expanded(
-                child:TextFormField(
-                controller: _controller,
-                decoration: new InputDecoration(),
-              ) ,
-              )
-              ,
+                child: TextFormField(
+                  controller: _controller,
+                  decoration: new InputDecoration(),
+                ),
+              ),
               FloatingActionButton(
                 onPressed: _sendMessage,
                 tooltip: 'Send message',
@@ -51,8 +45,6 @@ class _ChatRoomState extends State<ChatRoom> {
               ),
             ],
           )
-           
-          
         ],
       ),
     );
@@ -61,12 +53,50 @@ class _ChatRoomState extends State<ChatRoom> {
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
       channel.sink.add(_controller.text);
+      msgList.add([
+        {"msg": _controller.text},
+        {"by": "me"}
+      ]);
     }
+    _controller.clear();
   }
 
   @override
   void dispose() {
     channel.sink.close();
     super.dispose();
+  }
+
+  List<String> msgs = new List<String>();
+  Map<String, dynamic> msgMap = new Map<String, dynamic>();
+  List<List<Map<String, dynamic>>> msgList =
+      new List<List<Map<String, dynamic>>>();
+  Widget MsgBuilder() {
+    return StreamBuilder(
+      stream: channel.stream,
+      builder: (context, snapshot) {
+        msgs.add(snapshot.data);
+        msgList.add([
+          {"msg": snapshot.data},
+          {"by": "server"}
+        ]);
+        return ListView.builder(
+            itemBuilder: (context, index) {
+              return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 24.0, horizontal: 10),
+                  child: Text(
+                    msgList.isNotEmpty
+                        ? '${msgList[index][0]["msg"]}'
+                        : '',
+                    style: TextStyle(
+                        color: msgList[index][1]["by"] == "me"
+                            ? Colors.blue
+                            : Colors.green),
+                  ));
+            },
+            itemCount: msgs.length);
+      },
+    );
   }
 }

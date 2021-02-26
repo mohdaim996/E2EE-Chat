@@ -40,8 +40,7 @@ wsServer.on('request', function(request) {
     connection.sendUTF('Hi this is WebSocket server!');
     connection.on('message', function(message) {
         
-      connection.sendUTF('Hi this is WebSocket server!');
-      connection.send('hru');
+      
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
             const readline = require('readline').createInterface({
