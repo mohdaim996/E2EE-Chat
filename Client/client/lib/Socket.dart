@@ -3,7 +3,7 @@ import 'package:web_socket_channel/io.dart';
 
 class Socket {
   final WebSocketChannel _channel = IOWebSocketChannel.connect(
-    "ws://a4bedb0e97e9.ngrok.io",
+    "ws://768dd39d9906.ngrok.io",
   );
 
   void sendMsg(String message) {
