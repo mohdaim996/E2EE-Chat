@@ -1,7 +1,7 @@
 var WebSocketServer = require('websocket').server;
 
 var http = require('http');
-
+var webSockets = {}
 var server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
    
@@ -36,14 +36,21 @@ wsServer.on('request', function(request) {
     }
     
     var connection = request.accept(null, request.origin);
+    var userID = connection.remoteAddress 
+    
+    webSockets[userID] = connection
+    console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(webSockets))
+    console.log(webSockets)
     console.log((new Date()) + ' Connection accepted.');
-    connection.sendUTF('Hi this is WebSocket server!');
-    connection.on('message', function(message) {
+    webSockets[userID].sendUTF('Hi this is WebSocket server!');
+    webSockets[userID].on('message', function(message) {
         
       
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
-            const readline = require('readline').createInterface({
+            webSockets['213.166.147.62'].sendUTF(message.utf8Data)
+            
+           /* const readline = require('readline').createInterface({
                 input: process.stdin,
                 output: process.stdout
               });
@@ -52,7 +59,7 @@ wsServer.on('request', function(request) {
                 console.log(`sent ${msg}!`);
                 connection.sendUTF(msg);
                 readline.close();
-              });
+              });*/
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
