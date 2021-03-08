@@ -36,20 +36,27 @@ wsServer.on('request', function(request) {
     }
     
     var connection = request.accept(null, request.origin);
-    var userID = connection.remoteAddress 
+    var userID = connection
     
-    webSockets[userID] = connection
-    console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(webSockets))
-    console.log(webSockets)
+    webSockets[userID.remoteAddress] = connection
+    console.log('connected: ' + userID.remoteAddress + ' in ' + Object.getOwnPropertyNames(webSockets))
+    
     console.log((new Date()) + ' Connection accepted.');
-    webSockets[userID].sendUTF('Hi this is WebSocket server!');
-    webSockets[userID].on('message', function(message) {
+    webSockets[userID.remoteAddress].sendUTF('Hi this is WebSocket server!');
+    webSockets[userID.remoteAddress].on('message', function(message) {
         
       
         if (message.type === 'utf8') {
-            console.log('Received Message: ' + message.utf8Data);
-            webSockets['213.166.147.62'].sendUTF(message.utf8Data)
-            
+            var recievedMsg = JSON.parse(message.utf8Data)
+            console.log('Received Message: ' + recievedMsg["by"]+": "+recievedMsg(message.utf8Data)["message"]);
+            if(JSON.parse(message.utf8Data)["by"]=="user"){
+            webSockets['213.166.147.62'].sendUTF(message.utf8Data);
+            }else {
+                
+                    console.log("sent to phone");
+               
+            }
+
            /* const readline = require('readline').createInterface({
                 input: process.stdin,
                 output: process.stdout

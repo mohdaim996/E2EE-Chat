@@ -40,4 +40,4 @@ client.on('connect', function(connection) {
       });
 });
 
-client.connect('ws://b81d47a0be30.ngrok.io');
+client.connect('ws://408150ef4ce6.ngrok.io');
