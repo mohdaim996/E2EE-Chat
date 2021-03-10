@@ -34,7 +34,9 @@ wsServer.on('request', function(request) {
       console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
       return;
     }
+    console.log(request.httpRequest["url"]["headers"]);
     
+
     var connection = request.accept(null, request.origin);
     var userID = connection
     

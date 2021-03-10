@@ -91,7 +91,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   padding: const EdgeInsets.symmetric(
                       vertical: 24.0, horizontal: 10),
                   child: Text(
-                    msgList.isNotEmpty ? '${msgList[index][0]["msg"]}' : '',
+                    msgList.isNotEmpty ? '${msgList[index][0]["msg"]}' : 'EMPTY',
                     style: TextStyle(
                         color: msgList[index][1]["by"] == "me"
                             ? Colors.blue

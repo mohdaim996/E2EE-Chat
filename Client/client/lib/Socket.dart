@@ -5,6 +5,7 @@ import 'dart:convert';
 class Socket {
   final WebSocketChannel _channel = IOWebSocketChannel.connect(
     "ws://408150ef4ce6.ngrok.io",
+    headers: {"name":"Mohammed"}
   );
 
   void sendMsg(String message) {
