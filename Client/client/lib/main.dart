@@ -3,27 +3,29 @@ import 'package:client/socketTest.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 import 'Socket.dart';
-
-
+import 'login.dart';
+import 'signUp.dart';
 
 void main() {
-  
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
     final title = 'WebSocket Demo';
     return MaterialApp(
         routes: <String, WidgetBuilder>{
-          '/chatRoom': (BuildContext context) => new ChatRoom(mySocket: Router().mySocket,),
+          '/chatRoom': (BuildContext context) => new ChatRoom(
+                mySocket: Router().mySocket,
+              ),
           '/socketTest': (BuildContext context) => new MyHomePage(
               title: title,
               channel: IOWebSocketChannel.connect(
                 "ws://a908ce74c99d.ngrok.io",
               )),
+          '/login': (BuildContext context) => new LoginScreen(),
+          '/SignUp': (BuildContext context) => new SignUp(),
         },
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -39,11 +41,22 @@ class Router extends StatelessWidget {
     return ListView(
       children: [
         RaisedButton(
+          onPressed: () => Navigator.pushNamed(context, '/login'),
+          child: Text('Login'),
+        ),
+        RaisedButton(
+          onPressed: () => Navigator.pushNamed(context, '/SignUp'),
+          child: Text('Sign Up'),
+        ),
+        RaisedButton(
           onPressed: () => Navigator.pushNamed(context, '/chatRoom'),
           child: Text('Chat Room'),
         ),
         RaisedButton(
-          onPressed: () => Navigator.pushNamed(context, '/socketTest', ),
+          onPressed: () => Navigator.pushNamed(
+            context,
+            '/socketTest',
+          ),
           child: Text('Socket Test'),
         )
       ],
