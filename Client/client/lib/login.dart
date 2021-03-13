@@ -1,3 +1,4 @@
+import 'package:client/Socket.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() {
     if (_usrName.text.isNotEmpty && _passwd.text.isNotEmpty) {
       print("${_usrName.text} - ${_passwd.text} ");
+      Socket.login(_usrName.text, _passwd.text);
     }
   }
 }

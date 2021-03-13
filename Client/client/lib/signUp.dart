@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Socket.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -45,7 +46,7 @@ class _SignUpState extends State<SignUp> {
         _email.text.isNotEmpty &&
         _passwd.text.isNotEmpty &&
         _passwd2.text.isNotEmpty) {
-      print("${_usrName.text +' '+ _email.text +' '+ _passwd.text +' '+ _passwd2.text}");
+      Socket.register(_usrName.text, _email.text, _passwd.text, _passwd2.text);
     }
   }
 }

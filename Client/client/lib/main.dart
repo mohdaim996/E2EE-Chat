@@ -2,11 +2,13 @@ import 'package:client/chatRoom.dart';
 import 'package:client/socketTest.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
-import 'Socket.dart';
 import 'login.dart';
 import 'signUp.dart';
+import 'Socket.dart';
 
 void main() {
+  // ignore: unused_local_variable
+  var connection = Socket.channel;
   runApp(MyApp());
 }
 
@@ -16,9 +18,7 @@ class MyApp extends StatelessWidget {
     final title = 'WebSocket Demo';
     return MaterialApp(
         routes: <String, WidgetBuilder>{
-          '/chatRoom': (BuildContext context) => new ChatRoom(
-                mySocket: Router().mySocket,
-              ),
+          '/chatRoom': (BuildContext context) => new ChatRoom(),
           '/socketTest': (BuildContext context) => new MyHomePage(
               title: title,
               channel: IOWebSocketChannel.connect(
@@ -35,7 +35,6 @@ class MyApp extends StatelessWidget {
 }
 
 class Router extends StatelessWidget {
-  final Socket mySocket = new Socket();
   @override
   Widget build(BuildContext context) {
     return ListView(

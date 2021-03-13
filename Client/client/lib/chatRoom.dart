@@ -1,19 +1,16 @@
 import 'package:client/Socket.dart';
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/io.dart';
+
 
 class ChatRoom extends StatefulWidget {
-  final Socket mySocket;
-  ChatRoom({@required this.mySocket});
+  
+  
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
 
 class _ChatRoomState extends State<ChatRoom> {
-  final WebSocketChannel channel = IOWebSocketChannel.connect(
-    "ws://4646ed7b6bbd.ngrok.io",
-  );
+  
   TextEditingController _controller = TextEditingController();
 
   @override
@@ -26,7 +23,7 @@ class _ChatRoomState extends State<ChatRoom> {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Expanded(flex: 1, child: MsgBuilder()),
+          Expanded(flex: 1, child: msgBuilder()),
           /* Expanded(
               flex: 1,
               child: Container(
@@ -56,7 +53,7 @@ class _ChatRoomState extends State<ChatRoom> {
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
       //channel.sink.add(_controller.text);
-      widget.mySocket.sendMsg(_controller.text);
+      Socket.sendMsg(_controller.text);
       msgList.add([
         {"msg": _controller.text},
         {"by": "me"}
@@ -67,7 +64,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
   @override
   void dispose() {
-    channel.sink.close();
+   //channel.sink.close();
     super.dispose();
   }
 
@@ -75,10 +72,10 @@ class _ChatRoomState extends State<ChatRoom> {
   Map<String, dynamic> msgMap = new Map<String, dynamic>();
   List<List<Map<String, dynamic>>> msgList =
       new List<List<Map<String, dynamic>>>();
-  Widget MsgBuilder() {
-    assert(widget.mySocket != null);
+  Widget msgBuilder() {
+    
     return StreamBuilder(
-      stream: widget.mySocket.msgStream(), //channel.stream,
+      stream: Socket.msgStream(), //channel.stream,
       builder: (context, snapshot) {
         msgs.add(snapshot.data);
         msgList.add([
