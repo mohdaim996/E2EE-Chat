@@ -4,7 +4,7 @@ import 'dart:convert';
 
 class Socket {
   static WebSocketChannel _channel = IOWebSocketChannel.connect(
-      "ws://ea166529464b.ngrok.io",
+      "ws://742e25402843.ngrok.io",
       headers: {"name": "Mohammed"});
   static WebSocketChannel get channel {
     return Socket._channel;
@@ -42,5 +42,13 @@ class Socket {
 
   static Stream<dynamic> msgStream() {
     return Socket._channel.stream;
+  }
+  static Stream<dynamic> contactInfo(){
+    var strm =Socket._channel.stream.listen((event) => event).toString();
+    Map<String,dynamic> msg = new Map<String,dynamic>();
+    msg.addAll(json.decode(strm));
+    if(msg["type"]=='Id card'){
+
+    }
   }
 }

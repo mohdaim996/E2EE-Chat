@@ -22,6 +22,6 @@ wss.on ('connection', function connection (ws, request) {
       fs.writeFileSync ('users.json', JSON.stringify (record));
     }
   });
-
-  ws.send ('something');
+  
+  ws.send ('{"type":"ID card","name":"Moh"}');
 });

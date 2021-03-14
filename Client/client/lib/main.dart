@@ -5,7 +5,7 @@ import 'package:web_socket_channel/io.dart';
 import 'login.dart';
 import 'signUp.dart';
 import 'Socket.dart';
-
+import 'contacts.dart';
 void main() {
   // ignore: unused_local_variable
   var connection = Socket.channel;
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
               )),
           '/login': (BuildContext context) => new LoginScreen(),
           '/SignUp': (BuildContext context) => new SignUp(),
+          '/contact': (BuildContext context) => new ContactDisplay(),
         },
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -40,6 +41,9 @@ class Router extends StatelessWidget {
     return ListView(
       children: [
         RaisedButton(
+          onPressed: () => Navigator.pushNamed(context, '/contact'),
+          child: Text('contacts'),
+        ),RaisedButton(
           onPressed: () => Navigator.pushNamed(context, '/login'),
           child: Text('Login'),
         ),
