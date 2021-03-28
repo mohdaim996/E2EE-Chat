@@ -13,7 +13,6 @@ module.exports = class Users{
         this.type = type;
         if(type == 'register'){
             this._register(db,{Username: `${this.id}`, Email: `${this.email}`, Password:`${this._pass}`});
-            
             console.log('logged');
         }
         if(type == 'login'){

@@ -4,7 +4,7 @@ import 'dart:convert';
 
 class Socket {
   static WebSocketChannel _channel = IOWebSocketChannel.connect(
-      "ws://742e25402843.ngrok.io",
+      "ws://1159582ad511.ngrok.io",
       headers: {"name": "Mohammed"});
   static WebSocketChannel get channel {
     return Socket._channel;
@@ -33,6 +33,8 @@ class Socket {
     Map<String, dynamic> msg = new Map<String, dynamic>();
     msg.addAll({
       "by": "user",
+      "to":"Moh",
+      "type":"message",
       "message": message,
       "time": new DateTime.now().toString()
     });
