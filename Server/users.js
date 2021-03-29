@@ -12,7 +12,8 @@ module.exports = class Users{
         this.isAuth = false;
         this.type = type;
         if(type == 'register'){
-            this._register(db,{Username: `${this.id}`, Email: `${this.email}`, Password:`${this._pass}`});
+            console.log('registering...!');
+            this._register(db,this.id,this._pass,this.email);
             console.log('logged');
         }
         if(type == 'login'){
@@ -25,19 +26,21 @@ module.exports = class Users{
     }
     _validate(){
         //implement
-        return true
+        return true;
     }
 
     _exist(){
         //implement
-        return true
+        return true;
     }
     
-    _register(file,rcrd){
+    _register(file,id,pass,email){
+        var record = {Username: `${id}`, Email: `${email}`, Password:`${pass}`}
+        
         let rawdata = JSON.parse(fs.readFileSync(`${file}`));
-        rawdata.push(rcrd)
+        rawdata.push(record);
         fs.writeFileSync (`${file}`, JSON.stringify (rawdata,null,2));
-        return
+        
     }
 
     _login(file, id, pass){
@@ -66,7 +69,7 @@ module.exports = class Users{
         return
     }
     toJson(){
-        return JSON.stringify(`{Username: ${this.id}, Email: ${this.email}, Password:${this._pass}, User:${this.isUser}}`,null,2)
+        return JSON.stringify({Username: `${this.id}`, Email: `${this.email}`, Password:`${this._pass}`, User:`${this.isUser}`},null,2)
     }
     
 }

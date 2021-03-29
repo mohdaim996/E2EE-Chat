@@ -5,8 +5,10 @@ const Users = require ('./users.js');
 const wss = new WebSocket.Server ({port: 3000});
 var c = {};
 wss.on ('connection', function connection (ws, request) {
+  console.log(request.socket.remoteAddress);
   ws.on ('message', function incoming (message) {
     let msg = JSON.parse (message);
+    console.log(msg);
     if (msg['type'] == 'login') {
       let user = new Users (
         (id = msg['username']),
@@ -22,10 +24,12 @@ wss.on ('connection', function connection (ws, request) {
       }
     }
     if (msg['type'] == 'register') {
+      console.log('registering: '+msg['username']);
       let user = new Users (
         (id = msg['username']),
         (email = msg['email']),
         (pass = msg['password']),
+        (socket = ws),       
         (type = 'register'),
         (db = 'users.json')
       );
