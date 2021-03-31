@@ -3,8 +3,9 @@ import 'package:web_socket_channel/io.dart';
 import 'dart:convert';
 
 class Socket {
+  
   static WebSocketChannel _channel = IOWebSocketChannel.connect(
-      "ws://e026727afe02.ngrok.io",
+      "ws://09c7c9fb22ab.ngrok.io",
       headers: {"name": "Mohammed"});
   static WebSocketChannel get channel {
     return Socket._channel;

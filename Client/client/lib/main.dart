@@ -2,13 +2,18 @@ import 'package:client/chatRoom.dart';
 import 'package:client/socketTest.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:flutter/widgets.dart';
 import 'login.dart';
 import 'signUp.dart';
 import 'Socket.dart';
 import 'contacts.dart';
+
+
 void main() {
-  // ignore: unused_local_variable
-  var connection = Socket.channel;
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  Socket.channel;
+
   runApp(MyApp());
 }
 
@@ -43,7 +48,8 @@ class Router extends StatelessWidget {
         RaisedButton(
           onPressed: () => Navigator.pushNamed(context, '/contact'),
           child: Text('contacts'),
-        ),RaisedButton(
+        ),
+        RaisedButton(
           onPressed: () => Navigator.pushNamed(context, '/login'),
           child: Text('Login'),
         ),
