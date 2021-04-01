@@ -1,14 +1,27 @@
+import 'package:client/users.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'dart:convert';
+import 'main.dart' as main;
 
 class Socket {
-  
   static WebSocketChannel _channel = IOWebSocketChannel.connect(
-      "ws://09c7c9fb22ab.ngrok.io",
+      "ws://2786aade61e3.ngrok.io",
       headers: {"name": "Mohammed"});
   static WebSocketChannel get channel {
     return Socket._channel;
+  }
+
+  static void listen() async {
+    Socket._channel.stream.listen((event) {
+      var e = event.toString();
+      Map<String, dynamic> msg = new Map<String, dynamic>();
+      msg.addAll(json.decode(e));
+      if (msg['type'] == 'login response') {
+        print('inserting user');
+        main.db.insertUser(new User(msg['user']), 'user');
+      }
+    });
   }
 
   static void login(String usrName, String passwd) {
@@ -25,7 +38,7 @@ class Socket {
       "username": usrName,
       "email": email,
       "password": passwd,
-      "password2":passwd2
+      "password2": passwd2
     });
     Socket._channel.sink.add(jsonEncode(msg));
   }
@@ -34,8 +47,8 @@ class Socket {
     Map<String, dynamic> msg = new Map<String, dynamic>();
     msg.addAll({
       "by": "user",
-      "to":"Moh",
-      "type":"message",
+      "to": "Moh",
+      "type": "message",
       "message": message,
       "time": new DateTime.now().toString()
     });
@@ -46,12 +59,11 @@ class Socket {
   static Stream<dynamic> msgStream() {
     return Socket._channel.stream;
   }
-  static Stream<dynamic> contactInfo(){
-    var strm =Socket._channel.stream.listen((event) => event).toString();
-    Map<String,dynamic> msg = new Map<String,dynamic>();
-    msg.addAll(json.decode(strm));
-    if(msg["type"]=='Id card'){
 
-    }
+  static Stream<dynamic> contactInfo() {
+    var strm = Socket._channel.stream.listen((event) => event).toString();
+    Map<String, dynamic> msg = new Map<String, dynamic>();
+    msg.addAll(json.decode(strm));
+    if (msg["type"] == 'Id card') {}
   }
 }

@@ -5,10 +5,10 @@ const Users = require ('./users.js');
 const wss = new WebSocket.Server ({port: 3000});
 var c = {};
 wss.on ('connection', function connection (ws, request) {
-  console.log(request.socket.remoteAddress);
+  console.log (request.socket.remoteAddress);
   ws.on ('message', function incoming (message) {
     let msg = JSON.parse (message);
-    console.log(msg);
+    console.log (msg);
     if (msg['type'] == 'login') {
       let user = new Users (
         (id = msg['username']),
@@ -21,24 +21,27 @@ wss.on ('connection', function connection (ws, request) {
       if (user.isAuth) {
         ws.id = user.id;
         c[user.id] = user.socket;
+        c[user.id].send (JSON.stringify({
+          'type': 'login response',
+          'status': 'logged',
+          'user': `${user.id}`,
+         
+        }));
       }
     }
     if (msg['type'] == 'register') {
-      console.log('registering: '+msg['username']);
+      console.log ('registering: ' + msg['username']);
       let user = new Users (
         (id = msg['username']),
         (email = msg['email']),
         (pass = msg['password']),
-        (socket = ws),       
+        (socket = ws),
         (type = 'register'),
         (db = 'users.json')
       );
     }
     if (msg['type'] == 'message') {
-      let db = fs.readFileSync ('sockets.json');
-      let users = JSON.parse (db);
       let to = msg['to'];
-      let u = users[to];
       c[to].send (msg['message']);
     }
   });

@@ -55,10 +55,10 @@
       "_mask": {
         "type": "Buffer",
         "data": [
-          91,
-          107,
-          128,
-          126
+          242,
+          203,
+          230,
+          168
         ]
       },
       "_fragmented": 0,
@@ -196,7 +196,12 @@
         },
         "parser": null,
         "_paused": false,
-        "timeout": 0
+        "timeout": 0,
+        "_peername": {
+          "address": "::ffff:127.0.0.1",
+          "family": "IPv6",
+          "port": 52753
+        }
       },
       "_firstFragment": true,
       "_compress": false,
@@ -327,7 +332,12 @@
       },
       "parser": null,
       "_paused": false,
-      "timeout": 0
+      "timeout": 0,
+      "_peername": {
+        "address": "::ffff:127.0.0.1",
+        "family": "IPv6",
+        "port": 52753
+      }
     },
     "_isServer": true
   }

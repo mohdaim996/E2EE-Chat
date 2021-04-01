@@ -1,4 +1,5 @@
 import 'package:client/chatRoom.dart';
+import 'package:client/database.dart';
 import 'package:client/socketTest.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
@@ -7,13 +8,14 @@ import 'login.dart';
 import 'signUp.dart';
 import 'Socket.dart';
 import 'contacts.dart';
+import 'database.dart';
 
-
+DB db;
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  Socket.channel;
-
+  db = new DB("moh");
+  var x = Socket.channel;
+  Socket.listen();
   runApp(MyApp());
 }
 
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
           '/socketTest': (BuildContext context) => new MyHomePage(
               title: title,
               channel: IOWebSocketChannel.connect(
-                "ws://a908ce74c99d.ngrok.io",
+                "ws://ae6f023162ff.ngrok.io",
               )),
           '/login': (BuildContext context) => new LoginScreen(),
           '/SignUp': (BuildContext context) => new SignUp(),

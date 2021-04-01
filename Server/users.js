@@ -11,6 +11,7 @@ module.exports = class Users{
         this.isUser = this._exist();
         this.isAuth = false;
         this.type = type;
+        this.contacts = [];
         if(type == 'register'){
             console.log('registering...!');
             this._register(db,this.id,this._pass,this.email);
@@ -20,7 +21,7 @@ module.exports = class Users{
             console.log('logging in')
             this._login(db,this.id,this._pass)
             if(this.isAuth){
-                this._logConnection(this.id,this.socket)
+               // this._logConnection(this.id,this.socket)
             }
         }
     }
