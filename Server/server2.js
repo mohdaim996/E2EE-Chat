@@ -21,12 +21,13 @@ wss.on ('connection', function connection (ws, request) {
       if (user.isAuth) {
         ws.id = user.id;
         c[user.id] = user.socket;
-        c[user.id].send (JSON.stringify({
-          'type': 'login response',
-          'status': 'logged',
-          'user': `${user.id}`,
-         
-        }));
+        c[user.id].send (
+          JSON.stringify ({
+            type: 'login response',
+            status: 'logged',
+            user: `${user.id}`,
+          })
+        );
       }
     }
     if (msg['type'] == 'register') {
@@ -42,8 +43,24 @@ wss.on ('connection', function connection (ws, request) {
     }
     if (msg['type'] == 'message') {
       let to = msg['to'];
-      c[to].send (msg['message']);
+      c[to].send (
+        JSON.stringify ({
+          type: 'message',
+          from: 'Moh',
+          to: to,
+          message:`${msg['message']}`,
+          stamp: '1',
+        })
+      );
     }
   });
-  ws.send ('{"type":"ID card","name":"Moh"}');
+  ws.send (
+    JSON.stringify ({
+      type: 'message',
+      from: 'Moh',
+      to: 'raze',
+      message: 'Hello',
+      stamp: '1',
+    })
+  );
 });

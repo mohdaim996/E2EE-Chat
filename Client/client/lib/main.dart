@@ -11,9 +11,10 @@ import 'contacts.dart';
 import 'database.dart';
 
 DB db;
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  db = new DB("moh");
+  db = new DB("moh111");
   var x = Socket.channel;
   Socket.listen();
   runApp(MyApp());
@@ -47,23 +48,23 @@ class Router extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        RaisedButton(
+        ElevatedButton(
           onPressed: () => Navigator.pushNamed(context, '/contact'),
           child: Text('contacts'),
         ),
-        RaisedButton(
+        ElevatedButton(
           onPressed: () => Navigator.pushNamed(context, '/login'),
           child: Text('Login'),
         ),
-        RaisedButton(
+        ElevatedButton(
           onPressed: () => Navigator.pushNamed(context, '/SignUp'),
           child: Text('Sign Up'),
         ),
-        RaisedButton(
+        ElevatedButton(
           onPressed: () => Navigator.pushNamed(context, '/chatRoom'),
           child: Text('Chat Room'),
         ),
-        RaisedButton(
+        ElevatedButton(
           onPressed: () => Navigator.pushNamed(
             context,
             '/socketTest',

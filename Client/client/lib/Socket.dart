@@ -1,3 +1,4 @@
+import 'package:client/message.dart';
 import 'package:client/users.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
@@ -6,7 +7,7 @@ import 'main.dart' as main;
 
 class Socket {
   static WebSocketChannel _channel = IOWebSocketChannel.connect(
-      "ws://2786aade61e3.ngrok.io",
+      "wss://79423ac2aec6.ngrok.io",
       headers: {"name": "Mohammed"});
   static WebSocketChannel get channel {
     return Socket._channel;
@@ -16,10 +17,19 @@ class Socket {
     Socket._channel.stream.listen((event) {
       var e = event.toString();
       Map<String, dynamic> msg = new Map<String, dynamic>();
+      print(e);
       msg.addAll(json.decode(e));
+      
       if (msg['type'] == 'login response') {
         print('inserting user');
         main.db.insertUser(new User(msg['user']), 'user');
+      } else if (msg['type'] == 'message') {
+        main.db.insertMessage(new Messages(
+            new Contact(msg['from']),
+            new Contact(msg['from']),
+            new User(msg['to']),
+            msg['message'].toString(),
+            msg['stamp']));
       }
     });
   }

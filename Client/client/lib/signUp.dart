@@ -34,7 +34,7 @@ class _SignUpState extends State<SignUp> {
               controller: _passwd2,
               decoration: new InputDecoration(),
             ),
-            FlatButton(onPressed: _signUp, child: Text("Enter!"))
+            TextButton(onPressed: _signUp, child: Text("Enter!"))
           ],
         ),
       ),

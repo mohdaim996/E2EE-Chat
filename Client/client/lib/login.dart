@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _passwd,
               decoration: new InputDecoration(),
             ),
-            FlatButton(
+            TextButton(
               child: Text("Login"),
               onPressed: _login,
             ),

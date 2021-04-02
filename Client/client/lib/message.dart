@@ -1,17 +1,19 @@
 import 'package:client/users.dart';
 
 class Messages {
-  Users from;
   Contact contact;
+  Users from;
+  Users to;
   String message;
   String timeStamp;
+  Messages(this.contact, this.from, this.to,this.message, this.timeStamp);
   Map<String, dynamic> toMap() {
     return {
       'contact': this.contact.username,
-      'from': this.from.username,
-      'to': this.from.username,
+      'sender': this.from.username,
+      'reciever': this.to.username,
       'message': this.message,
-      'stamp':this.timeStamp
+      'stamp': this.timeStamp
     };
   }
 }

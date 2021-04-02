@@ -8,6 +8,8 @@ client.on('connectFailed', function(error) {
 
 client.on('connect', function(connection) {
     console.log('WebSocket Client Connected');
+    connection.sendUTF('{"type":"login","username":"Moh","password":"moh"}');
+    
     connection.on('error', function(error) {
         console.log("Connection Error: " + error.toString());
     });
@@ -18,6 +20,16 @@ client.on('connect', function(connection) {
         if (message.type === 'utf8') {
             console.log("Received: '" + message.utf8Data + "'");
         }
+        const readline = require('readline').createInterface({
+            input: process.stdin,
+            output: process.stdout
+          });
+           
+          readline.question('Send: ', msg => {
+            console.log(`sent ${msg}!`);
+            connection.sendUTF('{"type":"message","from":"Moh","to":"raze","message":"fggfx","stamp":"1"}');
+            readline.close();
+          });
     });
     
     function sendNumber() {
@@ -35,7 +47,7 @@ client.on('connect', function(connection) {
        
       readline.question('Send: ', msg => {
         console.log(`sent ${msg}!`);
-        connection.sendUTF(msg);
+        connection.sendUTF('{"type":"message","from":"Moh","to":"raze","message":"yujr","stamp":"1"}');
         readline.close();
       });
 });
