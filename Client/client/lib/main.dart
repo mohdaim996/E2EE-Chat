@@ -15,6 +15,7 @@ DB db;
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   db = new DB("moh111");
+  db.fm();
   var x = Socket.channel;
   Socket.listen();
   runApp(MyApp());

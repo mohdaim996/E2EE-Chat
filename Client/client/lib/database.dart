@@ -53,13 +53,19 @@ class DB {
   Future<void> insertMessage(Messages message) async {
     await this._database.insert('chat', message.toMap());
     final List<Map<String, dynamic>> maps = await this._database.query('chat');
-    try{
-    ChatRoom().newMessagenote();}catch(e){}
-    print(maps);
+    maps.isNotEmpty ? ChatRoom.messageStream.add(maps) : '';
+    try {
+      print('event trigger');
+    } catch (e) {}
+    print('new messages');
   }
 
   Future fetchMessages() async {
-    return this._database.query('chat');
+    final Future<List<Map<String, dynamic>>> maps =
+        this._database.query('chat');
+
+    return maps;
+
     /*List<Messages> messages;
     maps.forEach((element) => messages.add(Messages(
         Contact(element['contact']),
@@ -69,6 +75,16 @@ class DB {
         element['stamp'])));
     print("returning messages");
     return maps;*/
+  }
+
+  Stream fm() async* {
+    while (true) {
+      final Stream<List<Map<String, dynamic>>> maps =
+          main.db.fetchMessages().asStream();
+      ChatRoom.messageStream.add(maps);
+      print('adding maps');
+      print(maps);
+    }
   }
 }
 //contacts(ID Username)

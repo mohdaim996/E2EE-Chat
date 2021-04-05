@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:client/Socket.dart';
 import 'package:client/message.dart';
 import 'package:flutter/material.dart';
@@ -6,23 +8,18 @@ import 'message.dart';
 import 'users.dart';
 
 class ChatRoom extends StatefulWidget {
+  static StreamController messageStream = new StreamController.broadcast();
+  static Stream stream = ChatRoom.messageStream.stream;
   @override
   _ChatRoomState createState() => _ChatRoomState();
-
-  void newMessagenote() => _ChatRoomState().newMessagenote();
 }
 
 class _ChatRoomState extends State<ChatRoom> {
   TextEditingController _controller = TextEditingController();
-  bool newMessage;
-  void newMessagenote() {
-    setState(() {
-      newMessage = true;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    //main.db.fm();
     return Scaffold(
       appBar: new AppBar(
         title: new Text("Reciever Name"),
@@ -31,7 +28,7 @@ class _ChatRoomState extends State<ChatRoom> {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Expanded(flex: 1, child: conversation(context)),
+          Expanded(flex: 1, child: streamer(context)),
           /* Expanded(
               flex: 1,
               child: Container(
@@ -76,9 +73,43 @@ class _ChatRoomState extends State<ChatRoom> {
     super.dispose();
   }
 
+  Widget streamer(Context) {
+    return StreamBuilder(
+        stream: ChatRoom.stream, 
+        
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text("Error");
+          }
+          if (snapshot.hasData) {
+            print('listing');
+            return ListView.builder(
+                itemBuilder: (context, index) {
+                  print("listing");
+
+                  return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 24.0, horizontal: 10),
+                      child: Text(
+                        snapshot.hasData
+                            ? snapshot.data[index]['message']
+                            : 'EMPTY',
+                        style: TextStyle(
+                            color: snapshot.data[index]['from'] ==
+                                    main.db.clientName
+                                ? Colors.blue
+                                : Colors.green),
+                      ));
+                },
+                itemCount: snapshot.data.length);
+          }
+          return Text('loading');
+        });
+  }
+
   Widget conversation(context) {
     return FutureBuilder(
-        future: main.db.fetchMessages(),
+        future: Socket.listen(),
         builder: (context, snapshot) {
           print('futuring');
           print(snapshot.data);
@@ -86,7 +117,7 @@ class _ChatRoomState extends State<ChatRoom> {
               ? ListView.builder(
                   itemBuilder: (context, index) {
                     print("listing");
-                    newMessage = false;
+
                     return Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 24.0, horizontal: 10),
