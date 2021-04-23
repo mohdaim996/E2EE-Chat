@@ -8,15 +8,22 @@ import 'dart:convert';
 import 'main.dart' as main;
 
 class Socket {
-  static WebSocketChannel _channel = IOWebSocketChannel.connect(
-      "wss://1eaffc756c82.ngrok.io",
-      headers: {"name": "Mohammed"});
-  static WebSocketChannel get channel {
-    return Socket._channel;
+  String host = "wss://d59b6d448cdc.ngrok.io";
+  WebSocketChannel _channel;
+  // static WebSocketChannel _channel = IOWebSocketChannel.connect(
+  //     "wss://88cb2928d22a.ngrok.io",
+  //    headers: {"name": "Mohammed"});
+  WebSocketChannel get channel {
+    return this._channel;
   }
-  
-  static Future listen() async {
-    Socket._channel.stream.listen((event) {
+
+  set setChannel(WebSocketChannel connection) {
+    this._channel = connection;
+  }
+
+  Future listen() async {
+    print('listening...');
+    this._channel.stream.listen((event) {
       var e = event.toString();
       Map<String, dynamic> msg = new Map<String, dynamic>();
       print(e);
@@ -33,19 +40,28 @@ class Socket {
             new User(msg['to']),
             msg['message'].toString(),
             msg['stamp']));
+      } else {
+        print(msg);
       }
       return main.db.fetchMessages();
-    });
+    }, cancelOnError: true, onError: (error, stackTrace) => error);
   }
 
-  static void login(String usrName, String passwd) {
-    Map<String, dynamic> msg = new Map<String, dynamic>();
-    msg.addAll({"type": "login", "username": usrName, "password": passwd});
-    Socket._channel.sink.add(jsonEncode(msg));
+  dynamic login(String usrName, String passwd) {
+    //  Map<String, dynamic> msg = new Map<String, dynamic>();
+    //  msg.addAll({"type": "login", "username": usrName, "password": passwd});
+    //  Socket._channel.sink.add(jsonEncode(msg));
+    try {
+      this.setChannel = IOWebSocketChannel.connect(this.host,
+          protocols: ["login", usrName, passwd],
+          pingInterval: Duration(seconds: 1));
+      this.listen();
+    } catch (e) {
+      return e;
+    }
   }
 
-  static void register(
-      String usrName, String email, String passwd, String passwd2) {
+  void register(String usrName, String email, String passwd, String passwd2) {
     Map<String, dynamic> msg = new Map<String, dynamic>();
     msg.addAll({
       "type": "register",
@@ -54,10 +70,10 @@ class Socket {
       "password": passwd,
       "password2": passwd2
     });
-    Socket._channel.sink.add(jsonEncode(msg));
+    this._channel.sink.add(jsonEncode(msg));
   }
 
-  static void sendMsg(String message) {
+  void sendMsg(String message) {
     Map<String, dynamic> msg = new Map<String, dynamic>();
     msg.addAll({
       "by": "user",
@@ -67,15 +83,15 @@ class Socket {
       "time": new DateTime.now().toString()
     });
     print(msg);
-    Socket._channel.sink.add(jsonEncode(msg));
+    this._channel.sink.add(jsonEncode(msg));
   }
 
-  static Stream<dynamic> msgStream() {
-    return Socket._channel.stream;
+  Stream<dynamic> msgStream() {
+    return this._channel.stream;
   }
 
-  static Stream<dynamic> contactInfo() {
-    var strm = Socket._channel.stream.listen((event) => event).toString();
+  Stream<dynamic> contactInfo() {
+    var strm = this._channel.stream.listen((event) => event).toString();
     Map<String, dynamic> msg = new Map<String, dynamic>();
     msg.addAll(json.decode(strm));
     if (msg["type"] == 'Id card') {}

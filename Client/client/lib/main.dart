@@ -11,13 +11,15 @@ import 'contacts.dart';
 import 'database.dart';
 
 DB db;
-
+final Socket sock = new Socket();
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  db = new DB("moh111");
-  db.fm();
-  var x = Socket.channel;
-  Socket.listen();
+  //db = new DB("moh111");
+  //db.fm();
+  //var x = Socket.channel;
+  if (sock.channel != null) {
+    sock.listen();
+  }
   runApp(MyApp());
 }
 

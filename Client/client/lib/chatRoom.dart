@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:client/Socket.dart';
 import 'package:client/message.dart';
 import 'package:flutter/material.dart';
-import 'main.dart' as main;
+import 'main.dart';
 import 'message.dart';
 import 'users.dart';
 
@@ -19,7 +19,6 @@ class _ChatRoomState extends State<ChatRoom> {
 
   @override
   Widget build(BuildContext context) {
-    //main.db.fm();
     return Scaffold(
       appBar: new AppBar(
         title: new Text("Reciever Name"),
@@ -58,25 +57,20 @@ class _ChatRoomState extends State<ChatRoom> {
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
       //channel.sink.add(_controller.text);
-      Socket.sendMsg(_controller.text);
-      msgList.add([
-        {"msg": _controller.text},
-        {"by": "me"}
-      ]);
+      sock.sendMsg(_controller.text);
     }
     _controller.clear();
   }
 
   @override
   void dispose() {
-    //channel.sink.close();
+    ChatRoom.messageStream.close();
     super.dispose();
   }
 
-  Widget streamer(Context) {
+  Widget streamer(context) {
     return StreamBuilder(
-        stream: ChatRoom.stream, 
-        
+        stream: ChatRoom.stream,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text("Error");
@@ -96,7 +90,7 @@ class _ChatRoomState extends State<ChatRoom> {
                             : 'EMPTY',
                         style: TextStyle(
                             color: snapshot.data[index]['from'] ==
-                                    main.db.clientName
+                                    db.clientName
                                 ? Colors.blue
                                 : Colors.green),
                       ));
@@ -105,67 +99,5 @@ class _ChatRoomState extends State<ChatRoom> {
           }
           return Text('loading');
         });
-  }
-
-  Widget conversation(context) {
-    return FutureBuilder(
-        future: Socket.listen(),
-        builder: (context, snapshot) {
-          print('futuring');
-          print(snapshot.data);
-          return snapshot.hasData
-              ? ListView.builder(
-                  itemBuilder: (context, index) {
-                    print("listing");
-
-                    return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 24.0, horizontal: 10),
-                        child: Text(
-                          snapshot.hasData
-                              ? snapshot.data[index]['message']
-                              : 'EMPTY',
-                          style: TextStyle(
-                              color: snapshot.data[index]['from'] ==
-                                      main.db.clientName
-                                  ? Colors.blue
-                                  : Colors.green),
-                        ));
-                  },
-                  itemCount: snapshot.data.length)
-              : Text("loading");
-        });
-  }
-
-  List<String> msgs = [];
-  Map<String, dynamic> msgMap = new Map<String, dynamic>();
-  List<List<Map<String, dynamic>>> msgList = [];
-  Widget msgBuilder() {
-    return StreamBuilder(
-      stream: Socket.msgStream(), //channel.stream,
-      builder: (context, snapshot) {
-        msgs.add(snapshot.data);
-        msgList.add([
-          {"msg": snapshot.data},
-          {"by": "server"}
-        ]);
-        return ListView.builder(
-            itemBuilder: (context, index) {
-              return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 24.0, horizontal: 10),
-                  child: Text(
-                    msgList.isNotEmpty
-                        ? '${msgList[index][0]["msg"]}'
-                        : 'EMPTY',
-                    style: TextStyle(
-                        color: msgList[index][1]["by"] == "me"
-                            ? Colors.blue
-                            : Colors.green),
-                  ));
-            },
-            itemCount: msgs.length);
-      },
-    );
   }
 }

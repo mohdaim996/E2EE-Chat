@@ -1,3 +1,4 @@
+import 'package:client/main.dart';
 import 'package:flutter/material.dart';
 import 'Socket.dart';
 import 'dart:convert';
@@ -23,7 +24,7 @@ class _ContactDisplayState extends State<ContactDisplay> {
   static List<Map<String, dynamic>> book = [];
   Widget contactListBuilder() {
     return StreamBuilder(
-        stream: Socket.msgStream(), //channel.stream,
+        stream: sock.msgStream(), //channel.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Text('Loading');

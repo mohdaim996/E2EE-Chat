@@ -1,3 +1,4 @@
+import 'package:client/main.dart';
 import 'package:flutter/material.dart';
 import 'Socket.dart';
 
@@ -46,7 +47,7 @@ class _SignUpState extends State<SignUp> {
         _email.text.isNotEmpty &&
         _passwd.text.isNotEmpty &&
         _passwd2.text.isNotEmpty) {
-      Socket.register(_usrName.text, _email.text, _passwd.text, _passwd2.text);
+      sock.register(_usrName.text, _email.text, _passwd.text, _passwd2.text);
     }
   }
 }
