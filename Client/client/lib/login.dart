@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:client/Socket.dart';
 import 'package:client/main.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
+  static StreamController response = new StreamController.broadcast();
+  static Stream resStream = LoginScreen.response.stream;
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -36,12 +40,26 @@ class _LoginScreenState extends State<LoginScreen> {
         )));
   }
 
-  void _login() {
+  dynamic _login() async {
     if (_usrName.text.isNotEmpty && _passwd.text.isNotEmpty) {
       print("${_usrName.text} - ${_passwd.text} ");
-      if (sock.login(_usrName.text, _passwd.text) == Error) {
-        _showMyDialog(context);
-      }
+      await sock.login(_usrName.text, _passwd.text, LoginScreen.response);
+      String response;
+
+      LoginScreen.resStream.listen((event) {
+        response = event;
+        print("inside the loop $response");
+        if (response == 'sink Error') {
+          print(response);
+
+          return _showMyDialog(context);
+        } else if (response == 'success') {
+          print(response);
+         return Navigator.pushNamed(context, '/chatRoom');
+         }
+       
+      });
+      print('waiting for server response...');
     }
   }
 }

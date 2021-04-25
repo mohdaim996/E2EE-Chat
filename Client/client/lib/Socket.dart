@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'main.dart' as main;
 
 class Socket {
-  String host = "wss://d59b6d448cdc.ngrok.io";
+  String host = "wss://c8f4d2582a35.ngrok.io";
   WebSocketChannel _channel;
   // static WebSocketChannel _channel = IOWebSocketChannel.connect(
   //     "wss://88cb2928d22a.ngrok.io",
@@ -21,42 +21,52 @@ class Socket {
     this._channel = connection;
   }
 
-  Future listen() async {
+  Future listen({response}) async {
     print('listening...');
-    this._channel.stream.listen((event) {
-      var e = event.toString();
-      Map<String, dynamic> msg = new Map<String, dynamic>();
-      print(e);
-      msg.addAll(json.decode(e));
+    this._channel.stream.listen(
+        (event) {
+          var e = event.toString();
+          Map<String, dynamic> msg = new Map<String, dynamic>();
+          print(e);
+          msg.addAll(json.decode(e));
 
-      if (msg['type'] == 'login response') {
-        print('inserting user');
-        main.db.insertUser(new User(msg['user']), 'user');
-      } else if (msg['type'] == 'message') {
-        print('new message:socket');
-        main.db.insertMessage(new Messages(
-            new Contact(msg['from']),
-            new Contact(msg['from']),
-            new User(msg['to']),
-            msg['message'].toString(),
-            msg['stamp']));
-      } else {
-        print(msg);
-      }
-      return main.db.fetchMessages();
-    }, cancelOnError: true, onError: (error, stackTrace) => error);
+          if (msg['type'] == 'login response') {
+             response.sink.add('success');
+            print('inserting user');
+            main.db.insertUser(new User(msg['user']), 'user');
+          } else if (msg['type'] == 'message') {
+            print('new message:socket');
+            main.db.insertMessage(new Messages(
+                new Contact(msg['from']),
+                new Contact(msg['from']),
+                new User(msg['to']),
+                msg['message'].toString(),
+                msg['stamp']));
+          } else {
+            print(msg);
+          }
+          return main.db.fetchMessages();
+        },
+        onDone: () => print('onDone'),
+        onError: (error, stackTrace) {
+          print('OnError: $error');
+          print("onError $response");
+          response.sink.add('sink Error');
+        });
   }
 
-  dynamic login(String usrName, String passwd) {
+  dynamic login(String usrName, String passwd, response) async {
     //  Map<String, dynamic> msg = new Map<String, dynamic>();
     //  msg.addAll({"type": "login", "username": usrName, "password": passwd});
     //  Socket._channel.sink.add(jsonEncode(msg));
     try {
-      this.setChannel = IOWebSocketChannel.connect(this.host,
-          protocols: ["login", usrName, passwd],
-          pingInterval: Duration(seconds: 1));
-      this.listen();
+      this.setChannel = await IOWebSocketChannel.connect(
+        this.host,
+        protocols: ["login", usrName, passwd],
+      );
+      this.listen(response: response);
     } catch (e) {
+      print('catching');
       return e;
     }
   }
