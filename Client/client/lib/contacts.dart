@@ -2,8 +2,12 @@ import 'package:client/main.dart';
 import 'package:flutter/material.dart';
 import 'Socket.dart';
 import 'dart:convert';
+import 'dart:async';
 
 class ContactDisplay extends StatefulWidget {
+  static StreamController contactStream = new StreamController.broadcast();
+  static Stream stream = ContactDisplay.contactStream.stream;
+
   @override
   _ContactDisplayState createState() => _ContactDisplayState();
 }
@@ -21,21 +25,20 @@ class _ContactDisplayState extends State<ContactDisplay> {
         ));
   }
 
-  static List<Map<String, dynamic>> book = [];
   Widget contactListBuilder() {
     return StreamBuilder(
-        stream: sock.msgStream(), //channel.stream,
+        stream: ContactDisplay.stream, //channel.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Text('Loading');
           } else {
-            book.add(json.decode(snapshot.data));
             return ListView.builder(
-              itemCount: book.isEmpty ? 0 : book.length,
+              itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
+                print("listview ${snapshot.data}");
                 return ListTile(
                   leading: Icon(Icons.contacts),
-                  title: Text(book[index]["name"]),
+                  title: Text(snapshot.data[index]["user"]),
                 );
               },
             );

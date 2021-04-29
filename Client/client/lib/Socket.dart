@@ -6,13 +6,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'dart:convert';
 import 'main.dart' as main;
+import 'database.dart';
 
 class Socket {
-  String host = "wss://c8f4d2582a35.ngrok.io";
+  String host = "wss://99d81b093187.ngrok.io";
   WebSocketChannel _channel;
-  // static WebSocketChannel _channel = IOWebSocketChannel.connect(
-  //     "wss://88cb2928d22a.ngrok.io",
-  //    headers: {"name": "Mohammed"});
+
   WebSocketChannel get channel {
     return this._channel;
   }
@@ -24,28 +23,33 @@ class Socket {
   Future listen({response}) async {
     print('listening...');
     this._channel.stream.listen(
-        (event) {
+        (event) async {
           var e = event.toString();
           Map<String, dynamic> msg = new Map<String, dynamic>();
           print(e);
           msg.addAll(json.decode(e));
 
           if (msg['type'] == 'login response') {
-             response.sink.add('success');
+            response.sink.add('success');
+            await main.db.start("moh1111");
             print('inserting user');
             main.db.insertUser(new User(msg['user']), 'user');
-          } else if (msg['type'] == 'message') {
-            print('new message:socket');
-            main.db.insertMessage(new Messages(
-                new Contact(msg['from']),
-                new Contact(msg['from']),
-                new User(msg['to']),
-                msg['message'].toString(),
-                msg['stamp']));
-          } else {
-            print(msg);
+            main.db.insertContacts(Contact(msg['contacts']));
           }
-          return main.db.fetchMessages();
+          if (main.db.database != null) {
+            if (msg['type'] == 'message') {
+              print('new message:socket');
+              main.db.insertMessage(new Messages(
+                  new Contact(msg['from']),
+                  new Contact(msg['from']),
+                  new User(msg['to']),
+                  msg['message'].toString(),
+                  msg['stamp']));
+            } else {
+              print(msg);
+            }
+          }
+          return;
         },
         onDone: () => print('onDone'),
         onError: (error, stackTrace) {
@@ -56,14 +60,12 @@ class Socket {
   }
 
   dynamic login(String usrName, String passwd, response) async {
-    //  Map<String, dynamic> msg = new Map<String, dynamic>();
-    //  msg.addAll({"type": "login", "username": usrName, "password": passwd});
-    //  Socket._channel.sink.add(jsonEncode(msg));
     try {
       this.setChannel = await IOWebSocketChannel.connect(
         this.host,
         protocols: ["login", usrName, passwd],
       );
+
       this.listen(response: response);
     } catch (e) {
       print('catching');

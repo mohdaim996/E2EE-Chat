@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
           return _showMyDialog(context);
         } else if (response == 'success') {
           print(response);
-         return Navigator.pushNamed(context, '/chatRoom');
+         return Navigator.pushNamed(context, '/contact');
          }
        
       });
