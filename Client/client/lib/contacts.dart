@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'Socket.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'chatRoom.dart';
+import 'users.dart';
 
 class ContactDisplay extends StatefulWidget {
   static StreamController contactStream = new StreamController.broadcast();
@@ -37,6 +39,10 @@ class _ContactDisplayState extends State<ContactDisplay> {
               itemBuilder: (context, index) {
                 print("listview ${snapshot.data}");
                 return ListTile(
+                  onTap: () {
+                    user = Contact(snapshot.data[index]["user"]);
+                    Navigator.pushNamed(context, '/chatRoom');
+                  },
                   leading: Icon(Icons.contacts),
                   title: Text(snapshot.data[index]["user"]),
                 );

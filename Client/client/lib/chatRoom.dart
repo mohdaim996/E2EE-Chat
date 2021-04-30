@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 import 'message.dart';
 import 'users.dart';
-
+Contact user;
 class ChatRoom extends StatefulWidget {
   static StreamController messageStream = new StreamController.broadcast();
   static Stream stream = ChatRoom.messageStream.stream;
+  
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
@@ -21,7 +22,7 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: new AppBar(
-        title: new Text("Reciever Name"),
+        title: new Text(user.username),
       ),
       body: Column(
         mainAxisSize: MainAxisSize.max,
@@ -89,8 +90,7 @@ class _ChatRoomState extends State<ChatRoom> {
                             ? snapshot.data[index]['message']
                             : 'EMPTY',
                         style: TextStyle(
-                            color: snapshot.data[index]['from'] ==
-                                    db.clientName
+                            color: snapshot.data[index]['from'] == db.clientName
                                 ? Colors.blue
                                 : Colors.green),
                       ));

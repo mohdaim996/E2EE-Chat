@@ -52,4 +52,4 @@ client.on('connect', function(connection) {
       });
 });
 
-client.connect('ws://localhost:3000?headers=moh',['name']);
+client.connect('ws://localhost:3000',['login','Moh','moh']);
