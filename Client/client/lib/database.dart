@@ -6,6 +6,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'chatRoom.dart';
 import 'contacts.dart';
+
 class DB {
   String clientName;
   Database _database;
@@ -37,8 +38,7 @@ class DB {
   Future<void> onCreate(db) async {
     await db.execute(
         "CREATE TABLE chat(msgId INTEGER PRIMARY KEY,contact TEXT NOT NULL , sender TEXT, reciever TEXT, message TEXT, stamp TEXT)");
-    await db
-        .execute("CREATE TABLE contacts(user TEXT NOT NULL PRIMARY KEY)");
+    await db.execute("CREATE TABLE contacts(user TEXT NOT NULL PRIMARY KEY)");
     await db.execute(
         "CREATE TABLE user(user TEXT NOT NULL PRIMARY KEY,email TEXT, token TEXT)");
   }
@@ -56,16 +56,23 @@ class DB {
   Future<void> insertMessage(Messages message) async {
     await this._database.insert('chat', message.toMap());
     final List<Map<String, dynamic>> maps = await this._database.query('chat');
-    if(maps.isNotEmpty){ChatRoom.messageStream.add(maps);}
+    if (maps.isNotEmpty) {
+      ChatRoom.messageStream.add(maps);
+    }
     print('new messages');
   }
 
   Future<void> insertContacts(Contact contact) async {
-    await this._database.insert('contacts', contact.toMap(),conflictAlgorithm: ConflictAlgorithm.replace);
-    final List<Map<String, dynamic>> maps = await this._database.query('contacts');
-    if(maps.isNotEmpty){ContactDisplay.contactStream.add(maps);}
+    await this._database.insert('contacts', contact.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+    final List<Map<String, dynamic>> maps =
+        await this._database.query('contacts');
+    if (maps.isNotEmpty) {
+      ContactDisplay.contactStream.add(maps);
+    }
     print('new contact');
   }
+
   Future fetchMessages() async {
     final Future<List<Map<String, dynamic>>> maps =
         this._database.query('chat');
@@ -89,6 +96,13 @@ class DB {
       ChatRoom.messageStream.add(maps);
       print('adding maps');
       print(maps);
+    }
+  }
+
+  Stream chatOf(Contact contact) async* {
+    List<Map<String, dynamic>> maps = await this._database.query('chat');
+    if (maps.runtimeType != Future) {
+      yield maps;
     }
   }
 }

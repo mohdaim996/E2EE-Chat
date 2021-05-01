@@ -30,7 +30,7 @@ server.on('upgrade',function upgrade(request, socket, head) {
     }else{
       wss.handleUpgrade(request, socket, head, function done(ws,request,client) {
         if (user.isAuth) {
-          user.contacts.push('Moh','test')
+          user.contacts.push(['Moh','test'])
           console.log('Auth');
           ws.id = user.id;
           c[user.id] = ws;
