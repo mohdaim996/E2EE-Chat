@@ -73,6 +73,13 @@ class DB {
     print('new contact');
   }
 
+  void ffm() async {
+    dynamic maps = await this.fetchMessages();
+    if (maps.runtimeType.toString() != 'Future<dynamic>') {
+      ChatRoom.messageStream.add(maps);
+    }
+  }
+
   Future fetchMessages() async {
     final Future<List<Map<String, dynamic>>> maps =
         this._database.query('chat');

@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 import 'message.dart';
 import 'users.dart';
+
 Contact user;
+
 class ChatRoom extends StatefulWidget {
   static StreamController messageStream = new StreamController.broadcast();
   static Stream stream = ChatRoom.messageStream.stream;
-  
+
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
@@ -73,10 +75,18 @@ class _ChatRoomState extends State<ChatRoom> {
     return StreamBuilder(
         stream: ChatRoom.stream,
         builder: (context, snapshot) {
+          db.ffm();
           if (snapshot.hasError) {
             return Text("Error");
           }
           if (snapshot.hasData) {
+            if (snapshot.data.runtimeType.toString() == 'Future<dynamic>') {
+              return FutureBuilder(
+                  future: snapshot.data,
+                  builder: (builder, context) {
+                    return chatView(context, snapshot.data);
+                  });
+            }
             print('listing');
             return ListView.builder(
                 itemBuilder: (context, index) {
@@ -99,5 +109,24 @@ class _ChatRoomState extends State<ChatRoom> {
           }
           return Text('loading');
         });
+  }
+
+  Widget chatView(context, snapshot) {
+    return ListView.builder(
+        itemBuilder: (context, index) {
+          print("listing");
+
+          return Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 10),
+              child: Text(
+                snapshot.hasData ? snapshot[index]['message'] : 'EMPTY',
+                style: TextStyle(
+                    color: snapshot[index]['from'] == db.clientName
+                        ? Colors.blue
+                        : Colors.green),
+              ));
+        },
+        itemCount: snapshot.length);
   }
 }
