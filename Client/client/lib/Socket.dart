@@ -9,7 +9,7 @@ import 'main.dart' as main;
 import 'database.dart';
 
 class Socket {
-  String host = "wss://bad8b9a1fd43.ngrok.io";
+  String host = "wss://27c2f43b428a.ngrok.io";
   WebSocketChannel _channel;
 
   WebSocketChannel get channel {

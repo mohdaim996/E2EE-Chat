@@ -71,27 +71,31 @@ class _ChatRoomState extends State<ChatRoom> {
     super.dispose();
   }
 
+  bool onLoad = true;
+
   Widget streamer(context) {
     return StreamBuilder(
         stream: ChatRoom.stream,
         builder: (context, snapshot) {
-          db.ffm();
+          if (onLoad == true) {
+            db.ffm();
+          }
           if (snapshot.hasError) {
             return Text("Error");
           }
           if (snapshot.hasData) {
-            if (snapshot.data.runtimeType.toString() == 'Future<dynamic>') {
-              return FutureBuilder(
-                  future: snapshot.data,
-                  builder: (builder, context) {
-                    return chatView(context, snapshot.data);
-                  });
-            }
             print('listing');
+            onLoad = false;
+            ScrollController _myController = ScrollController();
+
             return ListView.builder(
+                controller: _myController,
                 itemBuilder: (context, index) {
                   print("listing");
-
+                  try {
+                    _myController
+                        .jumpTo(_myController.position.maxScrollExtent);
+                  } catch (e) {}
                   return Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 24.0, horizontal: 10),
