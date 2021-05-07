@@ -17,6 +17,7 @@ class ContactDisplay extends StatefulWidget {
 class _ContactDisplayState extends State<ContactDisplay> {
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
         appBar: AppBar(),
         body: Flex(

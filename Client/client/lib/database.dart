@@ -55,10 +55,7 @@ class DB {
 
   Future<void> insertMessage(Messages message) async {
     await this._database.insert('chat', message.toMap());
-    final List<Map<String, dynamic>> maps = await this._database.query('chat');
-    if (maps.isNotEmpty) {
-      ChatRoom.messageStream.add(maps);
-    }
+    this.ffm(message.contact);
     print('new messages');
   }
 
@@ -73,51 +70,24 @@ class DB {
     print('new contact');
   }
 
-  void ffm() async {
-    dynamic maps = await this.fetchMessages();
+  void ffm(Contact contact) async {
+    List<Map<String, dynamic>> maps = await this
+        ._database
+        .query('chat', where: "contact = '${contact.username}'");
+
     if (maps.runtimeType.toString() != 'Future<dynamic>') {
-      ChatRoom.messageStream.add(maps);
-    }
-  }
-
-  Future fetchMessages() async {
-    final Future<List<Map<String, dynamic>>> maps =
-        this._database.query('chat');
-    return maps;
-
-    /*List<Messages> messages;
-    maps.forEach((element) => messages.add(Messages(
-        Contact(element['contact']),
-        Contact(element['from']),
-        Contact(element['to']),
-        element['message'],
-        element['stamp'])));
-    print("returning messages");
-    return maps;*/
-  }
-
-  Stream fm() async* {
-    while (true) {
-      final Stream<List<Map<String, dynamic>>> maps =
-          main.db.fetchMessages().asStream();
-      ChatRoom.messageStream.add(maps);
-      print('adding maps');
-      print(maps);
-    }
-  }
-
-  Stream chatOf(Contact contact) async* {
-    List<Map<String, dynamic>> maps = await this._database.query('chat');
-    if (maps.runtimeType != Future) {
-      yield maps;
+      List<Messages> msgs = [];
+      maps.forEach((element) {
+        msgs.add(Messages(
+            contact,
+            element['from'] == this.clientName
+                ? User(element['from'])
+                : contact,
+            Users(element['reciever']),
+            element['message'],
+            element['stamp']));
+      });
+      ChatRoom.messageStream.add(msgs);
     }
   }
 }
-//contacts(ID Username)
-//chat(ID contact_INT, Time stamp, from, message)
-//User(ID Username, Token)
-//Todo:
-//insert messages
-//select messages
-//select contacts
-//insert contacts

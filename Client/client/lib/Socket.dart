@@ -9,7 +9,7 @@ import 'main.dart' as main;
 import 'database.dart';
 
 class Socket {
-  String host = "wss://27c2f43b428a.ngrok.io";
+  String host = "wss://76f1f8ac7c76.ngrok.io";
   WebSocketChannel _channel;
 
   WebSocketChannel get channel {
@@ -31,7 +31,7 @@ class Socket {
 
           if (msg['type'] == 'login response') {
             response.sink.add('success');
-            await main.db.start("moh1111");
+            await main.db.start(msg['user']);
             print('inserting user');
             main.db.insertUser(new User(msg['user']), 'user');
             List contact = msg['contacts'].split(',');

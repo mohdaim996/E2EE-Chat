@@ -59,7 +59,9 @@ class _ChatRoomState extends State<ChatRoom> {
 
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
-      //channel.sink.add(_controller.text);
+      Messages usermsg = new Messages(user, User(db.clientName), user,
+          _controller.text, new DateTime.now().toString());
+      db.insertMessage(usermsg);
       sock.sendMsg(_controller.text);
     }
     _controller.clear();
@@ -78,7 +80,7 @@ class _ChatRoomState extends State<ChatRoom> {
         stream: ChatRoom.stream,
         builder: (context, snapshot) {
           if (onLoad == true) {
-            db.ffm();
+            db.ffm(user);
           }
           if (snapshot.hasError) {
             return Text("Error");
@@ -92,6 +94,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 controller: _myController,
                 itemBuilder: (context, index) {
                   print("listing");
+                  dynamic x= snapshot.data[index].from.username.toString();
                   try {
                     _myController
                         .jumpTo(_myController.position.maxScrollExtent);
@@ -101,36 +104,19 @@ class _ChatRoomState extends State<ChatRoom> {
                           vertical: 24.0, horizontal: 10),
                       child: Text(
                         snapshot.hasData
-                            ? snapshot.data[index]['message']
+                            ? snapshot.data[index].message
                             : 'EMPTY',
                         style: TextStyle(
-                            color: snapshot.data[index]['from'] == db.clientName
-                                ? Colors.blue
-                                : Colors.green),
+                            color:
+                                snapshot.data[index].from.username.toString() ==
+                                        db.clientName
+                                    ? Colors.blue
+                                    : Colors.green),
                       ));
                 },
                 itemCount: snapshot.data.length);
           }
           return Text('loading');
         });
-  }
-
-  Widget chatView(context, snapshot) {
-    return ListView.builder(
-        itemBuilder: (context, index) {
-          print("listing");
-
-          return Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 10),
-              child: Text(
-                snapshot.hasData ? snapshot[index]['message'] : 'EMPTY',
-                style: TextStyle(
-                    color: snapshot[index]['from'] == db.clientName
-                        ? Colors.blue
-                        : Colors.green),
-              ));
-        },
-        itemCount: snapshot.length);
   }
 }
