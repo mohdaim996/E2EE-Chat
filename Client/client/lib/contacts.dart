@@ -1,28 +1,74 @@
-import 'package:client/main.dart';
 import 'package:flutter/material.dart';
-import 'Socket.dart';
-import 'dart:convert';
 import 'dart:async';
-import 'chatRoom.dart';
+
 import 'users.dart';
 
-class ContactDisplay extends StatefulWidget {
-  static StreamController contactStream = new StreamController.broadcast();
-  static Stream stream = ContactDisplay.contactStream.stream;
+import 'package:client/main.dart' as main;
+import 'chatRoom.dart' as chat;
 
+StreamController contactStream = new StreamController.broadcast();
+Stream stream = contactStream.stream;
+
+class ContactDisplay extends StatefulWidget {
+ 
   @override
   _ContactDisplayState createState() => _ContactDisplayState();
 }
 
 class _ContactDisplayState extends State<ContactDisplay> {
+  FocusNode _searchBar = new FocusNode();
+  TextEditingController _searchController = new TextEditingController();
+  bool _searchFocus;
+  _ContactDisplayState() {
+    _searchBar.addListener(() {
+      if (!_searchBar.hasPrimaryFocus) {
+        setState(() {
+          _searchController.dispose();
+        });
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                setState(() {
+                  _searchFocus = true;
+                });
+              },
+            )
+          ],
+        ),
         body: Flex(
           direction: Axis.vertical,
           children: [
+            _searchFocus == true
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _searchController,
+                          decoration: new InputDecoration(),
+                        ),
+                      ),
+                      FloatingActionButton(
+                        onPressed: () {
+                          main.sock.contactSearch(_searchController.text);
+                          _searchController.clear();                         
+                          setState(() {
+                            _searchFocus = false;
+                          });
+                        },
+                        tooltip: 'Search',
+                        child: Icon(Icons.send),
+                      ),
+                    ],
+                  )
+                : Text('Your contacts'),
             Expanded(flex: 1, child: contactListBuilder()),
           ],
         ));
@@ -30,7 +76,7 @@ class _ContactDisplayState extends State<ContactDisplay> {
 
   Widget contactListBuilder() {
     return StreamBuilder(
-        stream: ContactDisplay.stream, //channel.stream,
+        stream: stream, //channel.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Text('Loading');
@@ -41,7 +87,7 @@ class _ContactDisplayState extends State<ContactDisplay> {
                 print("listview ${snapshot.data}");
                 return ListTile(
                   onTap: () {
-                    user = Contact(snapshot.data[index]["user"]);
+                    chat.user = Contact(snapshot.data[index]["user"]);
                     Navigator.pushNamed(context, '/chatRoom');
                   },
                   leading: Icon(Icons.contacts),

@@ -4,8 +4,8 @@ import 'package:client/message.dart';
 import 'main.dart' as main;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'chatRoom.dart';
-import 'contacts.dart';
+import 'chatRoom.dart' as chat;
+import 'contacts.dart' as contacts;
 
 class DB {
   String clientName;
@@ -24,7 +24,6 @@ class DB {
   }
 
   Future<void> _initDB() async {
-    assert(this._client != null);
     String path = await getDatabasesPath();
     this.db = await openDatabase(
       join(path, '${this._client}_database.db'),
@@ -55,7 +54,6 @@ class DB {
 
   Future<void> insertMessage(Messages message) async {
     await this._database.insert('chat', message.toMap());
-    this.ffm(message.contact);
     print('new messages');
   }
 
@@ -65,29 +63,28 @@ class DB {
     final List<Map<String, dynamic>> maps =
         await this._database.query('contacts');
     if (maps.isNotEmpty) {
-      ContactDisplay.contactStream.add(maps);
+      contacts.contactStream.add(maps);
     }
     print('new contact');
   }
 
-  void ffm(Contact contact) async {
+  Future<List<Messages>> fetchChatHistory(Contact contact) async {
     List<Map<String, dynamic>> maps = await this
         ._database
         .query('chat', where: "contact = '${contact.username}'");
 
-    if (maps.runtimeType.toString() != 'Future<dynamic>') {
-      List<Messages> msgs = [];
-      maps.forEach((element) {
-        msgs.add(Messages(
-            contact,
-            element['from'] == this.clientName
-                ? User(element['from'])
-                : contact,
-            Users(element['reciever']),
-            element['message'],
-            element['stamp']));
-      });
-      ChatRoom.messageStream.add(msgs);
-    }
+    List<Messages> msgs = [];
+    maps.forEach((element) {
+      String sender = element['sender'];
+      msgs.add(Messages(
+          contact,
+          sender == this.clientName ? User(sender) : contact,
+          Users(sender),
+          element['message'],
+          element['stamp']));
+    });
+    chat.chat = msgs;
+
+    return msgs;
   }
 }

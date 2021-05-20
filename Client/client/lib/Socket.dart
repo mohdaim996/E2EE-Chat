@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 
 import 'package:client/message.dart';
 import 'package:client/users.dart';
@@ -6,10 +7,10 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'dart:convert';
 import 'main.dart' as main;
-import 'database.dart';
+import 'chatRoom.dart' as chat;
 
 class Socket {
-  String host = "wss://76f1f8ac7c76.ngrok.io";
+  String host = "wss://1c250715ada1.ngrok.io";
   WebSocketChannel _channel;
 
   WebSocketChannel get channel {
@@ -40,13 +41,17 @@ class Socket {
           }
           if (main.db.database != null) {
             if (msg['type'] == 'message') {
-              print('new message:socket');
-              main.db.insertMessage(new Messages(
-                  new Contact(msg['from']),
-                  new Contact(msg['from']),
-                  new User(msg['to']),
-                  msg['message'].toString(),
-                  msg['stamp']));
+              print('socket:new message');
+              Contact sender = new Contact(msg['from']);
+              Messages message = new Messages(sender, sender,
+                  new User(msg['to']), msg['message'].toString(), msg['stamp']);
+              if (chat.user.username == sender.username) {
+                chat.chat.add(message);
+                chat.pushMsg.add('new message');
+              }
+              main.db.insertMessage(message);
+            } else if (msg['type'] == 'contact') {
+              main.db.insertContacts(new Contact(msg['contact']));
             } else {
               print(msg);
             }
@@ -87,27 +92,32 @@ class Socket {
     this._channel.sink.add(jsonEncode(msg));
   }
 
-  void sendMsg(String message) {
+  void sendMsg(String message, user) {
     Map<String, dynamic> msg = new Map<String, dynamic>();
     msg.addAll({
-      "by": "user",
-      "to": "Moh",
+      "by": main.db.clientName,
+      "to": user,
       "type": "message",
       "message": message,
       "time": new DateTime.now().toString()
     });
-    print(msg);
     this._channel.sink.add(jsonEncode(msg));
+    print('Message Sent to $user, on ${msg['time']}');
   }
 
   Stream<dynamic> msgStream() {
     return this._channel.stream;
   }
 
-  Stream<dynamic> contactInfo() {
-    var strm = this._channel.stream.listen((event) => event).toString();
-    Map<String, dynamic> msg = new Map<String, dynamic>();
-    msg.addAll(json.decode(strm));
-    if (msg["type"] == 'Id card') {}
+  void contactSearch(String user) {
+    Map<String, dynamic> query = new Map<String, dynamic>();
+    query.addAll({
+      "type": "query",
+      "by": main.db.clientName,
+      "contact": user,
+      "time": new DateTime.now().toString()
+    });
+    this._channel.sink.add(jsonEncode(query));
+    print('Query started for $user, on ${query['time']}');
   }
 }

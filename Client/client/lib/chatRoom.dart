@@ -1,18 +1,20 @@
 import 'dart:async';
-
-import 'package:client/Socket.dart';
-import 'package:client/message.dart';
 import 'package:flutter/material.dart';
-import 'main.dart';
-import 'message.dart';
 import 'users.dart';
+import 'package:client/message.dart';
+
+import 'main.dart' as main;
+import 'message.dart';
 
 Contact user;
+List<Messages> chat = [];
+StreamController messageStream = new StreamController.broadcast();
+Stream stream = messageStream.stream;
+bool newMsgs = false;
+StreamController pushMsg = new StreamController.broadcast();
+Stream reloader = pushMsg.stream;
 
 class ChatRoom extends StatefulWidget {
-  static StreamController messageStream = new StreamController.broadcast();
-  static Stream stream = ChatRoom.messageStream.stream;
-
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
@@ -22,6 +24,13 @@ class _ChatRoomState extends State<ChatRoom> {
 
   @override
   Widget build(BuildContext context) {
+    msgCheck();
+    reloader.listen((event) {
+      if (event == 'new message') {
+        newMsgs = true;
+        msgCheck();
+      }
+    });
     return Scaffold(
       appBar: new AppBar(
         title: new Text(user.username),
@@ -59,64 +68,59 @@ class _ChatRoomState extends State<ChatRoom> {
 
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
-      Messages usermsg = new Messages(user, User(db.clientName), user,
+      Messages usermsg = new Messages(user, User(main.db.clientName), user,
           _controller.text, new DateTime.now().toString());
-      db.insertMessage(usermsg);
-      sock.sendMsg(_controller.text);
+      main.db.insertMessage(usermsg);
+      main.sock.sendMsg(_controller.text, user.username);
+      chat.add(usermsg);
+      setState(() {
+        newMsgs = false;
+      });
     }
     _controller.clear();
   }
 
   @override
   void dispose() {
-    ChatRoom.messageStream.close();
     super.dispose();
   }
 
-  bool onLoad = true;
-
   Widget streamer(context) {
-    return StreamBuilder(
-        stream: ChatRoom.stream,
-        builder: (context, snapshot) {
-          if (onLoad == true) {
-            db.ffm(user);
-          }
-          if (snapshot.hasError) {
-            return Text("Error");
-          }
-          if (snapshot.hasData) {
-            print('listing');
-            onLoad = false;
-            ScrollController _myController = ScrollController();
-
-            return ListView.builder(
-                controller: _myController,
-                itemBuilder: (context, index) {
-                  print("listing");
-                  dynamic x= snapshot.data[index].from.username.toString();
-                  try {
-                    _myController
-                        .jumpTo(_myController.position.maxScrollExtent);
-                  } catch (e) {}
-                  return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 24.0, horizontal: 10),
-                      child: Text(
-                        snapshot.hasData
-                            ? snapshot.data[index].message
-                            : 'EMPTY',
-                        style: TextStyle(
-                            color:
-                                snapshot.data[index].from.username.toString() ==
-                                        db.clientName
-                                    ? Colors.blue
-                                    : Colors.green),
-                      ));
-                },
-                itemCount: snapshot.data.length);
-          }
-          return Text('loading');
+    ScrollController _myController = ScrollController();
+    return FutureBuilder(
+        future: main.db.fetchChatHistory(user),
+        builder: (context, data) {
+          return ListView.builder(
+              controller: _myController,
+              itemBuilder: (context, index) {
+                print("listing");
+                try {
+                  _myController.jumpTo(_myController.position.maxScrollExtent);
+                } catch (e) {}
+                
+                return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 24.0, horizontal: 10),
+                    child: Text(
+                      chat.isNotEmpty
+                          ? chat[index].message
+                          : data.data[index].messages,
+                      style: TextStyle(
+                          color: chat[index].from.username.toString() ==
+                                  main.db.clientName
+                              ? Colors.blue
+                              : Colors.green),
+                    ));
+              },
+              itemCount: chat.length ?? data.data.length);
         });
+  }
+
+  void msgCheck() async {
+    while (newMsgs == true) {
+      setState(() {
+        newMsgs = false;
+      });
+    }
   }
 }

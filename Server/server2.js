@@ -30,7 +30,7 @@ server.on('upgrade',function upgrade(request, socket, head) {
     }else{
       wss.handleUpgrade(request, socket, head, function done(ws,request,client) {
         if (user.isAuth) {
-          user.contacts.push(['Moh','test'])
+          user.contacts.push(['Moh','test','raze'])
           console.log('Auth');
           ws.id = user.id;
           c[user.id] = ws;
@@ -104,6 +104,24 @@ wss.on ('connection', function connection (ws, request) {
           stamp: '1',
         })
       );
+    }
+    if (msg['type'] == 'query'){
+      //TODO
+      //database contact management implementation
+      //send qurey result first
+      //wait for add request
+      //add contact to user; 
+      let rawdata = JSON.parse(fs.readFileSync(`users.json`));
+      let to = msg['by'];
+      rawdata.forEach(user=> {
+        if(user['Username'] == msg['contact']){c[to].send(
+          JSON.stringify({
+            type:'contact',
+            from:'server',
+            contact:user['Username']
+          })
+        ) }
+      })
     }
   });
   ws.send (
