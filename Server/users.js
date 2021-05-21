@@ -1,5 +1,5 @@
 const fs = require ('fs');
-
+const db = require('./db.js');
 module.exports = class Users{
     
     constructor( id, email, pass, socket, type, db){  
