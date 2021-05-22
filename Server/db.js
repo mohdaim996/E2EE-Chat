@@ -25,13 +25,18 @@ function currentDate(){
     get path(){return this.#dbPath;}
     get database(){return this.#db;}
 
-    insertUser(id, email, pass){
-        this.database.run(`insert into users(username,email,joined)values("${id}", "${email}","${currentDate()}")`,function(err,row){
-            if(err) {
-                console.log(err.message)
-            }});
-        this.insertPass(id,pass);
-         
+    async insertUser(id, email, pass){
+        return await this.findUser(id).then((data)=>{
+            if(data.length == 0){
+            this.database.run(`insert into users(username,email,joined)values("${id}", "${email}","${currentDate()}")`,function(err,row){
+                if(err) {
+                    console.log(err.message)
+                }});
+            this.insertPass(id,pass);
+        }else{
+              return `User ${id} already exists`;  
+            }     
+        })
     }
     insertPass(id,pass){
         bcrypt.genSalt(saltRounds, (err, salt) => {
@@ -42,26 +47,76 @@ function currentDate(){
         });
     }
 
-    insertContact(id, contact){}
-    insertMessage(sender, reciever, message){}
+    insertContact(id, contact){
+        return this.findUser(id).then((data)=>{
+            
+            if(data.length == 1 && data[0].username == id){
+                
+                return this.getcontacts(id,contact).then((contacts)=>{
+                    let contactList =contacts[0].contacts.split(',')
+                   console.log(contactList)
+                    if(contactList.includes(contact)){
+                            
+                        return `${contact} already added to ${id}`
+                    } else {
+                        return this.findUser(contact).then((data)=>{
+                            
+                            if(data.length == 1 && data[0].username == contact){
+                                
+                                var newContacts = [];
+                                contacts.every((contact)=>newContacts.push(contact.contacts))
+                                newContacts.push(contact);
+                                this.findUserIn(id,'contacts').then((data)=>{
+                                    
+                                    if(data.length == 1 && data[0].user == id){
+                                        
+                                        return this.database.run(`UPDATE contacts SET contacts = "${newContacts}" WHERE user = "${id}"`,function(err){if(err){console.log(err)}})
+                                    } else if(data.length == 0){
+                                        
+                                        return this.database.run(`insert into contacts(user,contacts)values("${id}", "${contact}")`)}
 
-    findUser(id){
-        let query = this.database.each(`SELECT username FROM users WHERE username = "${id}"`,function(err, rows) {  
-            if(err) {
-                console.log(err.message)
-            }
-            console.log(rows)
-        });
-        return query;
+                                })
+                                }
+                            else if(data.length == 0){return `${contact} doesn't exist`}                           
+                            })
+                    }
+                })
+            }else if(data.length == 0){return `${id} doesn't exist`}
+
+        }
+
+        )
     }
-
+    insertMessage(sender, reciever, message){}
+    getcontacts (id) {
+        return new Promise((resolve,rejects)=>{
+            this.database.all(`SELECT contacts FROM contacts WHERE user = "${id}"`, function(err,rows){
+                resolve(rows)
+            })   
+        }) 
+    }
+    findUser (id) {
+        return new Promise((resolve,rejects)=>{
+            this.database.all(`SELECT username FROM users WHERE username = "${id}"`, function(err,rows){
+                resolve(rows)
+            })   
+        }) 
+    }
+    findUserIn (id,table) {
+        return new Promise((resolve,rejects)=>{
+            this.database.all(`SELECT user FROM ${table} WHERE user = "${id}"`, function(err,rows){
+                if(err){console.log("error",err);rejects('failed')}
+                resolve(rows)
+            })   
+        }) 
+    }
     getUser(id){
-        let query = this.database.each(`SELECT * FROM users WHERE username = "${id}"`,function(err, rows) {  
+        let query = new Promise((resolve)=>this.database.each(`SELECT * FROM users WHERE username = "${id}"`,function(err, rows) {  
             if(err) {
                 console.log(err.message)
             }
             console.log(rows)
-        });
+        }))
         return query;
     }
     
@@ -71,8 +126,11 @@ function currentDate(){
 
 
 }
- userDatabase = new MyDB();
-exports.userDatabase;
+
+userDatabase=new MyDB();
+userDatabase.insertContact('ham','Moh').then((data)=>console.log('data',data))
+
+//exports.userDatabase;
 
 
 
