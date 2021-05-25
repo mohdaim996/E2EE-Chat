@@ -48,72 +48,55 @@ function currentDate(){
     }
 
 
-    async insertContact(id,contact){
+   
+    async insertcontact(id,contact){
         if(id!=contact){
-        return new Promise((resolve,rejects)=>{
-            this.findUser(id).then((result)=>{
-               
-                if(result.length == 1 && result[0].username == id){
-                    //id exist
-                    this.findUser(contact).then((result)=>{
-                        if(result.length == 1 && result[0].username == contact){
-                            //contact exist
-                            //check user in contact
-                            this.findUserIn(id,'contacts').then((result)=>{
-                                if(result.length == 1 && result[0].user == id){
-                                    //id in contacts
-                                    //check contact in contacts of user
-                                    //if false update
-                                    this.getcontacts(id).then((contacts)=>{
-                                        let contactList =contacts[0].contacts.split(',')
-                                         if(contactList.includes(contact)){
-                                             //reject
-                                            resolve(`${contact} already added to ${id}`)
-                                            }else{
-                                                //update
-                                                contactList.push(contact)
-                                                
-                                                let q =new Promise((resolve)=>{
-                                                    this.database.run(`UPDATE contacts SET contacts = "${contactList}" WHERE user = "${id}"`,function(err){if(err){resolve(err)}else{resolve('contact added')}})}
-                                                    )
-                                                q.name?rejects(q):resolve(q)
-                                            }
-                                    })
-                                    
-                                }else{
-                                    //id not in contacts
-                                    //insert id and contact
-                                    let q =new Promise((resolve)=>{
-                                        this.database.run(`insert into contacts(user,contacts)values("${id}", "${contact}")`,function(err){
-                                            if(err){reject(err)}
-                                        })
-                                    })
-                                    resolve(q)
-                                }
-                            })
-                        }else{
-                            //contact doesn't exist
-                            //reject
-                            resolve(`${contact} doesn't exist`)
-                        }
+            let userExist = await this.findUser(id);
+            let contactExist = await this.findUser(contact);
+            let userExistIn = await this.findUser(id,'contacts');
+            let userContacts = '';
+            if(contactExist == true && userExist == true){
+                userContacts = await this.getcontacts(id)
+                userContacts = userContacts[0].contacts.split(',')
+                if(userContacts.includes(contact)){
+                    return `${contact} already added to ${id}`;
+                }else{
+                    userContacts.push(contact)
+                }
+                if(userExistIn == true){
+                    return new Promise((resolve,reject)=>{
+                        this.database.run(`UPDATE contacts SET contacts = "${userContacts}" WHERE user = "${id}"`,function (err){
+                            if(err){reject(err)}
+                            resolve(true)
+                        })
                     })
                 }else{
-                    //id doesn't exist
-                    //reject
-                    resolve(`${id} doesn't exist`)
+                    return new Promise((resolve,reject)=>{
+                        this.database.run(`insert into contacts(user,contacts)values("${id}", "${contact}")`,function(err){
+                            if(err){reject(err)}
+                            resolve(true)
+                        })
+                    })
                 }
-            })
-        })}else{
-            return "can't add to your self"
+            }else{
+                return "id doesn't exist";
+            }
+
+        }else{
+            return "cannot self add";
         }
     }
+
+
     insertMessage(sender, reciever, message){}
     getcontacts (id) {
+        
+       
         return new Promise((resolve,rejects)=>{
             this.database.all(`SELECT contacts FROM contacts WHERE user = "${id}"`, function(err,rows){
                 resolve(rows)
             })   
-        }) 
+        })
     }
     findUser (id) {
         return new Promise((resolve,reject)=>{
@@ -122,25 +105,29 @@ function currentDate(){
                     reject(err)
                 }
                 if(rows.length==0){
-                    reject(false)
+                    resolve(false)
                 }else{
                     resolve(true)
                 }
             })   
         }) 
     }
+
+
     findUserIn (id,table) {
         return new Promise((resolve,rejects)=>{
             this.database.all(`SELECT user FROM ${table} WHERE user = "${id}"`, function(err,rows){
                 if(err){rejects('failed')}
                 if(rows.length==0){
-                    reject(false)
+                    resolve(false)
                 }else{
                     resolve(true)
                 }
             })   
         }) 
     }
+
+
     getUser(id){
         return new Promise((resolve,reject)=>{
         this.database.all(`SELECT * FROM users WHERE username = "${id}"`,function(err, rows) {  
@@ -148,7 +135,7 @@ function currentDate(){
                 reject('failed')
             }
             if(rows.length==0){
-                reject(false)
+                resolve(false)
             }else{
                 resolve(true)
             }
@@ -184,7 +171,7 @@ function currentDate(){
                         if(passhash == password[0].password){
                             resolve(true)
                         }else(
-                            reject(false)
+                            resolve(false)
                         )
                    
                     
@@ -199,8 +186,6 @@ function currentDate(){
 }
 
 userDatabase=new MyDB();
-userDatabase.getUser('Moh').then((data)=>console.log({data}),(reason)=>console.log({reason}))
-
 
 //exports.userDatabase;
 
