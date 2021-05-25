@@ -25,23 +25,8 @@ function currentDate(){
     get path(){return this.#dbPath;}
     get database(){return this.#db;}
 
+    
     async insertUser(id, email, pass){
-        return await this.findUser(id).then((data)=>{
-            if(data.length == 0){
-            this.database.run(`insert into users(username,email,joined)values("${id}", "${email}","${currentDate()}")`,function(err,row){
-                if(err) {
-                    console.log(err.message)
-                }
-                console.log(row)
-            });
-
-            this.insertPass(id,pass);
-        }else{
-              return `User ${id} already exists`;  
-            }     
-        })
-    }
-    async insertUser1(id, email, pass){
        return new Promise(async (resolve)=>{
            let userExist = await this.findUser(id);
            if(userExist==false){
@@ -206,7 +191,7 @@ function currentDate(){
 }
 
 userDatabase=new MyDB();
-userDatabase.insertUser1('hamad','fkjfkj@gmail.com', 'abs12344556').then((value)=>console.log(value))
+userDatabase.insertUser('hamad','fkjfkj@gmail.com', 'abs12344556').then((value)=>console.log(value))
 //exports.userDatabase;
 
 
