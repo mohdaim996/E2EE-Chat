@@ -140,9 +140,9 @@ function currentDate(){
                 reject('failed')
             }
             if(rows.length==0){
-                resolve(false)
+                resolve(`${id} doesn't exist`)
             }else{
-                resolve(true)
+                resolve(rows)
             }
 
         })}
@@ -191,7 +191,7 @@ function currentDate(){
 }
 
 userDatabase=new MyDB();
-userDatabase.insertUser('hamad','fkjfkj@gmail.com', 'abs12344556').then((value)=>console.log(value))
+userDatabase.getUser('j;').then((value)=>console.log(value))
 //exports.userDatabase;
 
 
