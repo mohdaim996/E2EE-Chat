@@ -68,7 +68,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
-      Messages usermsg = new Messages(user, User(main.db.clientName), user,
+      Messages usermsg = new Messages(user, main.db.client, user,
           _controller.text, new DateTime.now().toString());
       main.db.insertMessage(usermsg);
       main.sock.sendMsg(_controller.text, user.username);
@@ -86,16 +86,17 @@ class _ChatRoomState extends State<ChatRoom> {
   }
 
   Widget streamer(context) {
-    ScrollController _myController = ScrollController();
+    //ScrollController _myController = ScrollController();
     return FutureBuilder(
         future: main.db.fetchChatHistory(user),
         builder: (context, data) {
           return ListView.builder(
-              controller: _myController,
+            reverse: true,
+             // controller: _myController,
               itemBuilder: (context, index) {
                 print("listing");
                 try {
-                  _myController.jumpTo(_myController.position.maxScrollExtent);
+                 // _myController.jumpTo(_myController.position.maxScrollExtent);
                 } catch (e) {}
                 
                 return Padding(
@@ -103,11 +104,11 @@ class _ChatRoomState extends State<ChatRoom> {
                         vertical: 24.0, horizontal: 10),
                     child: Text(
                       chat.isNotEmpty
-                          ? chat[index].message
-                          : data.data[index].messages,
+                          ? chat[(chat.length - index)-1].message
+                          : data.data[(data.data.length - index)-1].messages,
                       style: TextStyle(
-                          color: chat[index].from.username.toString() ==
-                                  main.db.clientName
+                          color: chat[(chat.length - index)-1].from.username.toString() ==
+                                  main.db.client.username
                               ? Colors.blue
                               : Colors.green),
                     ));

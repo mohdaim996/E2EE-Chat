@@ -8,19 +8,20 @@ import 'chatRoom.dart' as chat;
 import 'contacts.dart' as contacts;
 
 class DB {
-  String clientName;
+  String _client;
+  User client;
   Database _database;
+
   set db(db) {
     this._database = db;
   }
 
   get database => this._database;
-  String _client;
 
   Future<void> start(String clientName) async {
     this._client = clientName;
+    this.client = new User(clientName);
     await this._initDB();
-    print(this._database);
   }
 
   Future<void> _initDB() async {
@@ -39,17 +40,20 @@ class DB {
         "CREATE TABLE chat(msgId INTEGER PRIMARY KEY,contact TEXT NOT NULL , sender TEXT, reciever TEXT, message TEXT, stamp TEXT)");
     await db.execute("CREATE TABLE contacts(user TEXT NOT NULL PRIMARY KEY)");
     await db.execute(
-        "CREATE TABLE user(user TEXT NOT NULL PRIMARY KEY,email TEXT, token TEXT)");
+        "CREATE TABLE user(user TEXT NOT NULL PRIMARY KEY,email TEXT, token TEXT,pkx TEXT,pky TEXT, private BIGINT)");
+    await db.execute(
+        "CREATE TABLE keys(contact TEXT PRIMARY KEY REFERENCES contacts (user),pkx TEXT,pky TEXT, secret TEXT)");
   }
 
   Future<void> insertUser(Users user, String table) async {
     await this._database.insert(table, user.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+        conflictAlgorithm: ConflictAlgorithm.ignore);
     final List<Map<String, dynamic>> maps =
         await this._database.query('$table');
     print(maps);
     var q = await (this._database.query('user'));
-    this.clientName = q[0]['user'];
+    print(q);
+    this.client.addKeys(q[0]['pkx'], q[0]['pky'],q[0]['private']);
   }
 
   Future<void> insertMessage(Messages message) async {
@@ -57,6 +61,29 @@ class DB {
     print('new messages');
   }
 
+  Future<void> updateKeys(int pkx, int pky, int private) async {
+    var q = await (this._database.query('user'));
+    Map<String, dynamic> map = new Map<String, dynamic>();
+    map.addAll({
+      "user": q[0]['user'],
+      "email": q[0]['email'],
+      "token": q[0]['token'],
+      "pkx": pkx,
+      "pky": pky,
+      "private": private
+    });
+    
+
+    await this._database.update('user', map);
+    q = await (this._database.query('user'));
+    print(q);
+  }
+Future<void> insertKeys(contact,pkx,pky,secret) async {
+    await this._database.insert('keys', {"contact":contact,"pkx":pkx,"pky":pky,"secret":secret},conflictAlgorithm: ConflictAlgorithm.replace);
+    ;
+    var q = await (this._database.query('keys'));
+    print(q);
+  }
   Future<void> insertContacts(Contact contact) async {
     await this._database.insert('contacts', contact.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
@@ -78,7 +105,7 @@ class DB {
       String sender = element['sender'];
       msgs.add(Messages(
           contact,
-          sender == this.clientName ? User(sender) : contact,
+          sender == this.client.username ? this.client : contact,
           Users(sender),
           element['message'],
           element['stamp']));

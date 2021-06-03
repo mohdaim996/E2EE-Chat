@@ -68,7 +68,7 @@ class _ContactDisplayState extends State<ContactDisplay> {
                       ),
                     ],
                   )
-                : Text('Your contacts'),
+                :Center(child:  Text('Your contacts'),),
             Expanded(flex: 1, child: contactListBuilder()),
           ],
         ));
@@ -79,7 +79,7 @@ class _ContactDisplayState extends State<ContactDisplay> {
         stream: stream, //channel.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Text('Loading');
+            return Text('you have no contacts');
           } else {
             return ListView.builder(
               itemCount: snapshot.data.length,

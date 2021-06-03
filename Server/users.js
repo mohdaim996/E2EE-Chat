@@ -1,76 +1,65 @@
 const fs = require ('fs');
 const db = require('./db.js');
-module.exports = class Users{
-    
-    constructor( id, email, pass, socket, type, db){  
-        this.id = id;
-        this.email = email;
-        this._pass = pass;
-        this.socket = socket;
-        this.isValid = this._validate();
-        this.isUser = this._exist();
-        this.isAuth = false;
-        this.type = type;
-        this.contacts = [];
-        if(type == 'register'){
-            console.log('registering...!');
-            this._register(db,this.id,this._pass,this.email);
-            console.log('logged');
-        }
-        if(type == 'login'){
-            console.log('logging in')
-            this._login(db,this.id,this._pass)
-            if(this.isAuth){
-               // this._logConnection(this.id,this.socket)
-            }
-        }
+ module.exports=class Users{
+    username;
+    email;
+    #pass;
+    contacts;
+    #isAuth = false;
+    #isValid;
+    socket;
+    get isUser(){return this.exist();}
+    get isAuth(){return this.#isAuth;}
+    set #isAuthSet(state){this.#isAuth = state;}
+
+    constructor( username, pass, email){  
+        this.username = username;
+        this.pass = pass;
+        this.email = email;  
     }
-    _validate(){
+    validate(){
         //implement
         return true;
     }
 
-    _exist(){
+    async exist(){
         //implement
-        return true;
+        let userExist = await userDatabase.findUser(this.username);
+        return userExist;
     }
     
-    _register(file,id,pass,email){
-        var record = {Username: `${id}`, Email: `${email}`, Password:`${pass}`}
-        
-        let rawdata = JSON.parse(fs.readFileSync(`${file}`));
-        rawdata.push(record);
-        fs.writeFileSync (`${file}`, JSON.stringify (rawdata,null,2));
-        
+    async register(){
+       let userExist = await this.isUser;
+        if(userExist==false){
+            if(!(this.username&&this.pass&&this.email)){
+                throw 'Invalid data'
+            }
+        let inesrtResult = await userDatabase.insertUser(this.username, this.pass, this.email)
+        return inesrtResult;}
+        return 'username is taken';
     }
 
-    _login(file, id, pass){
-        let rawdata = JSON.parse(fs.readFileSync(`${file}`));
-        console.log(rawdata.length);
-        
-        rawdata.forEach(element=> {
-            
-            console.log("reading elemnts");
-            console.log(element['Username'] == id,pass,element['Password'] )
-            if(element['Username'] == id){
-                console.log('id exist')
-                if(element['Password'] == pass){
-                    console.log('password match')
-                    this.isAuth = true
-                }
-            }
-        })
-        
-        ;
+    async login(){
+    let userExist = await this.isUser;
+    if(userExist==true){   
+        if(!(this.username&&this.pass)){
+            throw 'Invalid data'
+        }
+        let authResult = await userDatabase.authUser(this.username, this.pass)
+        this.#isAuthSet = authResult;
+        return authResult;
+        }
+    return "username doesn't exist";
+    } 
+    async getContacts(){
+        let userExist = await this.isUser;
+        if(userExist==true){
+            let contacts = await userDatabase.getcontacts(this.username)
+            return contacts;
+        }
+        return "username doesn't exist"
     }
-    _logConnection(id,socket){
-        let rawdata = JSON.parse(fs.readFileSync('./sockets.json'));
-        rawdata[id]=socket;
-        fs.writeFileSync ('./sockets.json', JSON.stringify (rawdata,null,2));
-        return
+    async addContacts(contact){
+        return await userDatabase(this.username, contact);
     }
-    toJson(){
-        return JSON.stringify({Username: `${this.id}`, Email: `${this.email}`, Password:`${this._pass}`, User:`${this.isUser}`},null,2)
-    }
-    
 }

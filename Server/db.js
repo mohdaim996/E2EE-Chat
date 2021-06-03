@@ -26,7 +26,7 @@ function currentDate(){
     get database(){return this.#db;}
 
     
-    async insertUser(id, email, pass){
+    async insertUser(id, pass, email){
        return new Promise(async (resolve)=>{
            let userExist = await this.findUser(id);
            if(userExist==false){
@@ -35,11 +35,11 @@ function currentDate(){
                     resolve(err);
                 }
                 
-                resolve(`${id} has been inserted`);
+                resolve(true);
             });
             this.insertPass(id,pass);
            }else{
-               resolve(`${id} already exist`);
+               resolve(false);
            }
        })
     }
@@ -58,9 +58,11 @@ function currentDate(){
         if(id!=contact){
             let userExist = await this.findUser(id);
             let contactExist = await this.findUser(contact);
-            let userExistIn = await this.findUser(id,'contacts');
+            let userExistIn = await this.findUserIn(id,'contacts');
             let userContacts = '';
             if(contactExist == true && userExist == true){
+                
+                if(userExistIn == true){
                 userContacts = await this.getcontacts(id)
                 userContacts = userContacts[0].contacts.split(',')
                 if(userContacts.includes(contact)){
@@ -68,17 +70,20 @@ function currentDate(){
                 }else{
                     userContacts.push(contact)
                 }
-                if(userExistIn == true){
-                    return new Promise((resolve,reject)=>{
+                    return new Promise((resolve)=>{
                         this.database.run(`UPDATE contacts SET contacts = "${userContacts}" WHERE user = "${id}"`,function (err){
-                            if(err){reject(err)}
+                            if(err){
+                                throw err
+                            }
                             resolve(true)
                         })
                     })
                 }else{
-                    return new Promise((resolve,reject)=>{
+                    return new Promise((resolve)=>{
                         this.database.run(`insert into contacts(user,contacts)values("${id}", "${contact}")`,function(err){
-                            if(err){reject(err)}
+                            if(err){
+                                throw err
+                            }
                             resolve(true)
                         })
                     })
@@ -94,20 +99,21 @@ function currentDate(){
 
 
     insertMessage(sender, reciever, message){}
-    getcontacts (id) {
-        
-       
+    getcontacts (id) { 
         return new Promise((resolve,rejects)=>{
             this.database.all(`SELECT contacts FROM contacts WHERE user = "${id}"`, function(err,rows){
+                if(err){
+                    throw err
+                }
                 resolve(rows)
             })   
         })
     }
     findUser (id) {
-        return new Promise((resolve,reject)=>{
+        return new Promise((resolve)=>{
             this.database.all(`SELECT username FROM users WHERE username = "${id}"`, function(err,rows){
                 if(err){
-                    reject(err)
+                    throw err
                 }
                 if(rows.length==0){
                     resolve(false)
@@ -120,9 +126,11 @@ function currentDate(){
 
 
     findUserIn (id,table) {
-        return new Promise((resolve,rejects)=>{
+        return new Promise((resolve)=>{
             this.database.all(`SELECT user FROM ${table} WHERE user = "${id}"`, function(err,rows){
-                if(err){rejects('failed')}
+                if(err){
+                    throw err
+                }
                 if(rows.length==0){
                     resolve(false)
                 }else{
@@ -134,10 +142,10 @@ function currentDate(){
 
 
     getUser(id){
-        return new Promise((resolve,reject)=>{
+        return new Promise((resolve)=>{
         this.database.all(`SELECT * FROM users WHERE username = "${id}"`,function(err, rows) {  
-            if(err) {
-                reject('failed')
+            if(err){
+                throw err
             }
             if(rows.length==0){
                 resolve(`${id} doesn't exist`)
@@ -150,25 +158,32 @@ function currentDate(){
         
     }
     
-    authUser(id, pass){
-        return new Promise( (resolve,reject)=>{
-            this.findUser(id).then(async(result)=>{
-                if(result.length == 1 && result[0].username == id){
-                    
-
+    async authUser(id, pass){
+        return new Promise( async(resolve)=>{
+            let userExist = await this.findUser(id)
+            
+                if(userExist == true){
                     let salt = await new Promise((resolve,rejects)=>{
                         this.database.all(`SELECT salt FROM passwords WHERE user = "${id}"`, function(err,rows){
+                            if(err){
+                                throw err
+                            }
                             resolve(rows)
                         })   
                     }) ;
-                    let password = await new Promise((resolve,rejects)=>{
+                    let password = await new Promise((resolve)=>{
                         this.database.all(`SELECT password FROM passwords WHERE user = "${id}"`, function(err,rows){
+                            if(err){
+                                throw err
+                            }
                             resolve(rows)
                         })   
                     }) ;
                     let passhash = await new Promise((resolve)=>{
                         bcrypt.hash(pass, salt[0].salt, (err, hash) => {
-                            if(err){console.log(err,{pass},{salt})}
+                            if(err){
+                                throw err
+                            }
                             resolve(hash)
                         });
                     })
@@ -181,18 +196,51 @@ function currentDate(){
                    
                     
                 }
-            })
+            
         })
     }
-    insertPK(id, pk){}
-    findPK(id){}
+    insertPK(id, pk, time){
+        return new Promise(async (resolve)=>{
+            let userExist = await this.findUser(id);
+            let userExistIn = await this.findUserIn(id,'keys');
+            if(userExist==true && userExistIn == false){
+             this.database.run(`insert into keys(user,key,created)values("${id}", "${pk}","${time}")`,function(err){
+                 if(err) {
+                     resolve(err);
+                 }
+                 
+                 resolve(true);
+             });
+            
+            }else if(userExist == true && userExistIn == true){
+                this.database.run(`UPDATE keys SET key = "${pk}", created = "${time} WHERE user = "${id}"`,function (err){
+                    if(err){
+                        throw err
+                    }
+                    resolve(true)
+                })
+            }
+        })
+    }
+    findPK(id){
+        return new Promise((resolve)=>{
+            this.database.all(`SELECT key FROM keys WHERE user = "${id}"`,function(err, rows) {  
+                if(err){
+                    throw err
+                }
+                if(rows.length==0){
+                    resolve(`${id} doesn't exist`)
+                }else{
+                    resolve(rows)
+                }
+    
+            })}
+            )
+    }
 
 
 }
 
 userDatabase=new MyDB();
-userDatabase.getUser('j;').then((value)=>console.log(value))
-//exports.userDatabase;
-
-
+exports.userDatabase;
 

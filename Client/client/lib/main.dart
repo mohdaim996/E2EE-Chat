@@ -15,15 +15,16 @@ import 'package:cryptography/cryptography.dart';
 DB db;
 final Socket sock = new Socket();
 void main() async {
-  Crypt key = new Crypt(g: [5, 1], m: 17, p: 15);
+ /* Crypt key = new Crypt(g: [5, 2], m: 97, p: 45);
   print(key.public);
-  Crypt key2 = new Crypt(g: [5, 1], m: 17, p: 8);
+  Crypt key2 = new Crypt(g: [5, 2], m: 97, p: 89);
   print(key2.public);
-  Hash sh1 = await key.sharedSec(13, 7);
-  Hash sh2 = await key2.sharedSec(3, 16);
+  Hash sh1 = await key.sharedSec(key2.public[0], key2.public[1]);
+  Hash sh2 = await key2.sharedSec(key.public[0], key.public[1]);
+  print(sh1 == sh2);
   SecretKey skey = new SecretKey(sh1.bytes);
-  print(key.ecKeyGen(13, 7, 15, 17));
-  print(key2.ecKeyGen(3, 16, 8, 17));
+  print(key.ecKeyGen(key2.public[0],  key2.public[1], 45, 97));
+  print(key2.ecKeyGen(key.public[0], key.public[1], 89, 97));
 
   final algorithm = AesGcm.with256bits();
   final nonce = algorithm.newNonce();
@@ -35,7 +36,7 @@ void main() async {
   print('Nonce: ${secretBox.nonce}');
   print('Ciphertext: ${secretBox.cipherText}');
   print('MAC: ${secretBox.mac.bytes}');
-  print( await algorithm.decrypt(secretBox, secretKey: skey));
+  print(await algorithm.decrypt(secretBox, secretKey: skey));*/
   WidgetsFlutterBinding.ensureInitialized();
   db = new DB();
   //db.fm();

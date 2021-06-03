@@ -10,24 +10,38 @@ class Crypt {
   Crypt({this.g, this.m, this.p}) {
     this.public = this.ecKeyGen(this.g[0], this.g[1], this.p, this.m);
   }
+  bool onCurve() {
+    int fx = pow(this.public[0], 3);
+    int sx = 2 * this.public[0];
+    int fy = pow(this.public[1], 2);
+    int res = (fx + sx + 2 - fy) % this.m;
+    return res == 0 ? true : false;
+  }
 
   List<int> ecKeyGen(int xx, int yy, int p, int m) {
     List<int> tmp = [1, 1];
     for (int i = 2; i <= p; i++) {
-      if (i <= 2) {
+      if(tmp[0] == 0 && tmp[1] == 0){
+       tmp = [xx,yy]; 
+      }else if (i <= 2 || (tmp[0] == xx && tmp[1] == yy)) {
         tmp = pdouble(xx, yy, 2, m);
-      } else if (i > 2) {
+      } else if (i > 2 &&  !(tmp[0] == xx && tmp[1] == yy))  {
         tmp = pAdd(xx, yy, tmp[0], tmp[1], m);
       }
-    }
+    } 
     return tmp;
   }
 
   dynamic sharedSec(int x, int y) async {
     Hash secret = await encKey(this.ecKeyGen(x, y, this.p, this.m));
-  
-      return secret;
-    
+
+    return secret;
+  }
+
+  dynamic sharedSecret(int x, int y, int xx, int yy) async {
+    Hash secret = await encKey(this.ecKeyGen(x, y, xx, yy));
+
+    return secret;
   }
 
   dynamic encKey(List<int> sharedSec) async {
@@ -44,19 +58,25 @@ class Crypt {
   }
 
   List<int> pdouble(int x, int y, int n, int m) {
-    int stop = (((3 * pow(x, 2)) + n).toInt()) % m;
-    int sbtm = gcd((2*y) ^ -1, m);
+    int stop = (((3 * pow(x, 2) % m) + n).toInt()) % m;
+    int sbtm = this.gcd((2 * y), m);
     int s = (stop * sbtm) % m;
     int xx = ((pow(s, 2) % m) - (2 * x) % m).toInt();
-    int yy = ((s * (x - xx) % m) - y % m).toInt();
+    int yy = (((s * (x - xx) % m) - y) % m).toInt();
     return [xx, yy];
   }
 
   List<int> pAdd(int xp, int yp, int xq, int yq, int m) {
+    if (xq == 0 && yq == 0) {
+      return [xp, yp];
+    }
+    if (xp == xq && yp != yq) {
+      return [0, 0];
+    }
     try {
       //Slope
       int stop = (yq - yp);
-      int sbtm = stop % (xq - xp) == 0 ? (xq - xp) : gcd((xq - xp) ^ -1, m);
+      int sbtm = stop % (xq - xp) == 0 ? (xq - xp) : gcd((xq - xp), m);
       int s =
           stop % (xq - xp) == 0 ? ((stop ~/ sbtm) % m) : ((stop * sbtm) % m);
       //X-axis
@@ -76,9 +96,9 @@ class Crypt {
     return pAdd(xp, -yp % m, xq, yq, m);
   }
 
-  dynamic gcd(int a, int b) {
+  dynamic gcd(a, int b) {
     for (int x = 1; x <= b; x++) {
-      if ((((a ^ -1) * x) % b) == 1) {
+      if ((((a % m) * x) % b) == 1) {
         return x;
       }
     }
