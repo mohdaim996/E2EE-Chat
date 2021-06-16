@@ -9,8 +9,6 @@ import 'signUp.dart';
 import 'Socket.dart';
 import 'contacts.dart';
 import 'database.dart';
-import 'crypt.dart';
-import 'package:cryptography/cryptography.dart';
 
 DB db;
 final Socket sock = new Socket();

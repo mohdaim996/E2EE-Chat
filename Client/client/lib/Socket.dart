@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
-
 import 'package:client/message.dart';
 import 'package:client/users.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -80,9 +78,9 @@ class Socket {
         });
   }
 
-  dynamic login(String usrName, String passwd, response) async {
+  dynamic login(String usrName, String passwd, response)  {
     try {
-      this.setChannel = await IOWebSocketChannel.connect(
+      this.setChannel =  IOWebSocketChannel.connect(
         this.host,
         protocols: ["login", usrName, passwd],
       );

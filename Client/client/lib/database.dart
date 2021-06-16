@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:client/users.dart';
 import 'package:client/message.dart';
-import 'main.dart' as main;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'chatRoom.dart' as chat;
@@ -80,7 +79,7 @@ class DB {
   }
 Future<void> insertKeys(contact,pkx,pky,secret) async {
     await this._database.insert('keys', {"contact":contact,"pkx":pkx,"pky":pky,"secret":secret},conflictAlgorithm: ConflictAlgorithm.replace);
-    ;
+    
     var q = await (this._database.query('keys'));
     print(q);
   }

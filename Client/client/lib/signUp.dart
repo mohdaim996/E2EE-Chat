@@ -1,6 +1,5 @@
 import 'package:client/main.dart';
 import 'package:flutter/material.dart';
-import 'Socket.dart';
 
 class SignUp extends StatefulWidget {
   @override
