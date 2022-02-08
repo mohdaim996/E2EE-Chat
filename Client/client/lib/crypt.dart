@@ -21,14 +21,14 @@ class Crypt {
   List<int> ecKeyGen(int xx, int yy, int p, int m) {
     List<int> tmp = [1, 1];
     for (int i = 2; i <= p; i++) {
-      if(tmp[0] == 0 && tmp[1] == 0){
-       tmp = [xx,yy]; 
-      }else if (i <= 2 || (tmp[0] == xx && tmp[1] == yy)) {
+      if (tmp[0] == 0 && tmp[1] == 0) {
+        tmp = [xx, yy];
+      } else if (i <= 2 || (tmp[0] == xx && tmp[1] == yy)) {
         tmp = pdouble(xx, yy, 2, m);
-      } else if (i > 2 &&  !(tmp[0] == xx && tmp[1] == yy))  {
+      } else if (i > 2 && !(tmp[0] == xx && tmp[1] == yy)) {
         tmp = pAdd(xx, yy, tmp[0], tmp[1], m);
       }
-    } 
+    }
     return tmp;
   }
 

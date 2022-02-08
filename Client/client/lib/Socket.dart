@@ -78,9 +78,9 @@ class Socket {
         });
   }
 
-  dynamic login(String usrName, String passwd, response)  {
+  dynamic login(String usrName, String passwd, response) {
     try {
-      this.setChannel =  IOWebSocketChannel.connect(
+      this.setChannel = IOWebSocketChannel.connect(
         this.host,
         protocols: ["login", usrName, passwd],
       );
