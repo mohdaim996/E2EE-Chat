@@ -27,7 +27,7 @@ client.on('connect', function(connection) {
            
           readline.question('Send: ', msg => {
             console.log(`sent ${msg}!`);
-            connection.sendUTF('{"type":"message","from":"Moh","to":"hhj","message":"fggfxhello","stamp":"1"}');
+            connection.sendUTF('{"type":"message","from":"Moh","to":"","message":"Hello","stamp":"1"}');
             readline.close();
           });
     });
@@ -47,7 +47,7 @@ client.on('connect', function(connection) {
        
       readline.question('Send: ', msg => {
         console.log(`sent ${msg}!`);
-        connection.sendUTF('{"type":"message","from":"Moh","to":"hhj","message":"yujrhello","stamp":"1"}');
+        connection.sendUTF('{"type":"message","from":"Moh","to":"","message":"Hello!","stamp":"1"}');
         readline.close();
       });
 });
