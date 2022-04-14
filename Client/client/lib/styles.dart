@@ -62,7 +62,7 @@ Widget bodyBase(Widget child) => SingleChildScrollView(
     ));
 
 Widget basicInput(TextEditingController controller, String label,
-    {double width = 300, double radius = 5}) {
+    {double width = 300, double radius = 5, bool password = false}) {
   return Container(
     width: wScale(width),
     height: hScale(50),
@@ -83,6 +83,7 @@ Widget basicInput(TextEditingController controller, String label,
             colors: [Color(0xFFc2e9fb), Color(0xFFa1c4fd)]),
       ),
       child: TextFormField(
+        obscureText: password,
         controller: controller,
         decoration: new InputDecoration(
           labelText: label,

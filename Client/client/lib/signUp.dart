@@ -20,8 +20,8 @@ class _SignUpState extends State<SignUp> {
 
   Widget body(BuildContext context) {
     Widget name = ST.basicInput(_usrName, "Username:");
-    Widget pswd = ST.basicInput(_passwd, "Password");
-    Widget repswd = ST.basicInput(_passwd2, "Re-enter Password:");
+    Widget pswd = ST.basicInput(_passwd, "Password", password: true);
+    Widget repswd = ST.basicInput(_passwd2, "Re-enter Password:", password: true);
     Widget email = ST.basicInput(_email, "Email:");
 
     Widget signup = ST.basicButton(_isElevated, setState, _signUp,child:Text("Signup"));

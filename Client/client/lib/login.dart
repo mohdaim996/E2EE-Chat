@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget body(BuildContext context) {
     Widget name = ST.basicInput(_usrName, "Username:");
-    Widget pswd = ST.basicInput(_passwd, "Password:");
+    Widget pswd = ST.basicInput(_passwd, "Password:",password: true);
 
     Widget signup = TextButton(
         onPressed: () => Navigator.pushNamed(context, '/SignUp'),
@@ -94,18 +94,18 @@ Future<void> _showMyDialog(context) async {
     barrierDismissible: false, // user must tap button!
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('AlertDialog Title'),
+        title: Text('Something went wrong'),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
-              Text('This is a demo alert dialog.'),
-              Text('Would you like to approve of this message?'),
+              Text('An error has occurred'),
+              Text('Please Try again'),
             ],
           ),
         ),
         actions: <Widget>[
           TextButton(
-            child: Text('Approve'),
+            child: Text('Ok'),
             onPressed: () {
               Navigator.of(context).pop();
             },
