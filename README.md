@@ -12,7 +12,7 @@
 ##### Instruction:
     - Navigate to the server directory and in the command line run 'node server.js'
     - Run the command 'ngrok http 3000' which will generate a link for localhost:3000
-    - In the client directory, navigate to lib/Socket.dart and paste the link generate by ngrok in the host property as a string with 'wss' protocol  ... .insted of 'https'
+    - In the client directory, navigate to lib/Socket.dart and paste the link generate by ngrok in the host property as a string with 'wss' protocol instead of 'https'
     - In the lib directory run the command 'flutter run' or 'flutter run main.dart' which will start the application on emulator
 
 ##### Test data:
