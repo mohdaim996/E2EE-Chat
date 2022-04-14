@@ -1,4 +1,4 @@
-# E2EE-Chat
+# End-to-End Encrypted Chat
 ##### Description:
     a chat application for secure communication between mobile users.
 
