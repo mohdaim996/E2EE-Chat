@@ -13,8 +13,13 @@ import 'database.dart';
 
 double height;
 double width;
+
 DB db;
 final Socket sock = new Socket();
+
+double hScale(double value) => (value / 692 * 100) * height / 100;
+double wScale(double value) => (value / 360 * 100) * width / 100;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   db = new DB();
@@ -24,8 +29,7 @@ void main() async {
   runApp(MyApp());
 }
 
-double hScale(double value) => (value / 692 * 100) * height / 100;
-double wScale(double value) => (value / 360 * 100) * width / 100;
+
 
 class MyApp extends StatelessWidget {
   @override

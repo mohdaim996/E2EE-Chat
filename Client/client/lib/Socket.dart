@@ -8,7 +8,7 @@ import 'main.dart' as main;
 import 'chatRoom.dart' as chat;
 
 class Socket {
-  String host = "wss://3bc43e5e87f0.ngrok.io";
+  String host = "wss://a548-2001-16a2-c757-e700-8142-136d-5822-a47e.ngrok.io";
   WebSocketChannel _channel;
 
   WebSocketChannel get channel {

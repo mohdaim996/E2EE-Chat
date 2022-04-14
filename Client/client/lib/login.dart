@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:client/main.dart';
 import 'package:flutter/material.dart';
+import 'styles.dart' as ST;
 
 class LoginScreen extends StatefulWidget {
   static StreamController response = new StreamController.broadcast();
@@ -12,30 +13,56 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController _usrName = TextEditingController();
   TextEditingController _passwd = TextEditingController();
+  bool _isElevated = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-        body: Center(
-            child: Column(
-          children: [
-            TextFormField(
-              controller: _usrName,
-              decoration: new InputDecoration(),
-            ),
-            TextFormField(
-              controller: _passwd,
-              decoration: new InputDecoration(),
-            ),
-            TextButton(
-              child: Text("Login"),
-              onPressed: _login,
-            ),
-            TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/SignUp'),
-                child: Text("Sign Up?"))
-          ],
-        )));
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
+
+    return Scaffold(extendBody: true, body: body(context));
+  }
+
+  Widget body(BuildContext context) {
+    Widget name = ST.basicInput(_usrName, "Username:");
+    Widget pswd = ST.basicInput(_passwd, "Password:");
+
+    Widget signup = TextButton(
+        onPressed: () => Navigator.pushNamed(context, '/SignUp'),
+        child: Text("Sign Up?"));
+
+    Widget login = ST.basicButton(_isElevated, setState, _login,child:Text("Login"));
+
+    Widget body = ST.bodyBase(Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(height: hScale(36)),
+        ST.logo,
+        Spacer(),
+        ST.promtContainer(
+            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text("Enter your account information"),
+              Container(
+                height: hScale(20.75),
+              ),
+              name,
+              Container(height: hScale(25)),
+              pswd,
+              Container(height: hScale(25)),
+              login,
+              signup,
+              Container(height: hScale(15)),
+              
+            ]),
+            context),
+        
+        Spacer(),
+        Divider(indent: 20, endIndent: 20),
+        Spacer(),
+        ST.creds,
+      ],
+    ));
+    return ST.mainBackground(body);
   }
 
   dynamic _login() async {
@@ -53,9 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
           return _showMyDialog(context);
         } else if (response == 'success') {
           print(response);
-         return Navigator.pushNamed(context, '/contact');
-         }
-       
+          return Navigator.pushNamed(context, '/contact');
+        }
       });
       print('waiting for server response...');
     }

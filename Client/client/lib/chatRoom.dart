@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'users.dart';
 import 'package:client/message.dart';
-
+import 'styles.dart' as ST;
 import 'main.dart' as main;
 import 'message.dart';
 
@@ -21,9 +21,11 @@ class ChatRoom extends StatefulWidget {
 
 class _ChatRoomState extends State<ChatRoom> {
   TextEditingController _controller = TextEditingController();
-
+  bool _isElevated = false;
   @override
   Widget build(BuildContext context) {
+    main.height = MediaQuery.of(context).size.height;
+    main.width = MediaQuery.of(context).size.width;
     msgCheck();
     reloader.listen((event) {
       if (event == 'new message') {
@@ -31,39 +33,24 @@ class _ChatRoomState extends State<ChatRoom> {
         msgCheck();
       }
     });
-    return Scaffold(
-      appBar: new AppBar(
-        title: new Text(user.username),
-      ),
-      body: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Expanded(flex: 1, child: streamer(context)),
-          /* Expanded(
-              flex: 1,
-              child: Container(
-                color: Colors.blueGrey[100],
-                constraints: BoxConstraints.expand(),
-              )),*/
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _controller,
-                  decoration: new InputDecoration(),
-                ),
-              ),
-              FloatingActionButton(
-                onPressed: _sendMessage,
-                tooltip: 'Send message',
-                child: Icon(Icons.send),
-              ),
-            ],
-          )
-        ],
-      ),
+    Widget curUser = Text(user.username,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 23,
+        ));
+    Widget chatInfo = ST.appBar(child: Center(child: curUser));
+    Widget chatBody = Expanded(flex: 1, child: streamer(context));
+    Widget msgInput =
+        Expanded(child: ST.basicInput(_controller, "", radius: 50));
+    Widget sendBtn = ST.basicButton(_isElevated, setState, _sendMessage,
+        child: Icon(Icons.send), height: 48, radius: 50);
+    Widget inputRow = Row(children: [msgInput, sendBtn]);
+    Widget body = Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [chatInfo, chatBody, inputRow],
     );
+    return Scaffold(body: SafeArea(child: ST.mainBackground(body)));
   }
 
   void _sendMessage() {
@@ -91,27 +78,32 @@ class _ChatRoomState extends State<ChatRoom> {
         future: main.db.fetchChatHistory(user),
         builder: (context, data) {
           return ListView.builder(
-            reverse: true,
-             // controller: _myController,
+              reverse: true,
+              // controller: _myController,
               itemBuilder: (context, index) {
                 print("listing");
                 try {
-                 // _myController.jumpTo(_myController.position.maxScrollExtent);
+                  // _myController.jumpTo(_myController.position.maxScrollExtent);
                 } catch (e) {}
-                
+                bool user =
+                    chat[(chat.length - index) - 1].from.username.toString() ==
+                        main.db.client.username;
+                String msg = chat.isNotEmpty
+                    ? chat[(chat.length - index) - 1].message
+                    : data.data[(data.data.length - index) - 1].messages;
+                Widget styledMsg = Text(
+                  msg,
+                  style: TextStyle(fontSize: 20),
+                );
+                Widget msgBox = Align(
+                    alignment:
+                        user ? Alignment.centerRight : Alignment.centerLeft,
+                    child: ST.messageBox(user, styledMsg, context,radius: 30));
                 return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 24.0, horizontal: 10),
-                    child: Text(
-                      chat.isNotEmpty
-                          ? chat[(chat.length - index)-1].message
-                          : data.data[(data.data.length - index)-1].messages,
-                      style: TextStyle(
-                          color: chat[(chat.length - index)-1].from.username.toString() ==
-                                  main.db.client.username
-                              ? Colors.blue
-                              : Colors.green),
-                    ));
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 10),
+                  child: msgBox,
+                );
               },
               itemCount: chat.length ?? data.data.length);
         });
